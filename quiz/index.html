@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz | Student Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
+        .glass { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.3s; }
+        .input-field:focus { border-color: #f97316; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen p-6 relative overflow-x-hidden">
+    <div id="app" class="max-w-4xl mx-auto pb-20">
+        <header class="flex justify-between items-center mb-8 sticky top-0 z-50 glass p-4 rounded-xl -mx-4 bg-[#0a0a0a]/90">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Quiz Manager</h1>
+                <p class="text-gray-500 text-xs">Practice & Learn</p>
+            </div>
+            <div class="flex gap-3">
+                <button @click="mode = mode === 'edit' ? 'take' : 'edit'" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm">
+                    {{ mode === 'edit' ? 'Take Quiz' : 'Edit Questions' }}
+                </button>
+                <button @click="loadFile" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm">Reload</button>
+                <button @click="saveFile" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-sm font-medium shadow-lg shadow-orange-500/20">Save JSON</button>
+            </div>
+        </header>
+
+        <!-- Edit Mode -->
+        <div v-if="mode === 'edit'" class="space-y-8">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-xl font-bold text-orange-500 mb-4">Add New Question</h2>
+                <div class="space-y-4">
+                    <input v-model="newQuestion.text" class="input-field" placeholder="Question Text" required>
+                    <div v-for="(opt, idx) in newQuestion.options" :key="idx" class="flex gap-2">
+                        <input v-model="newQuestion.options[idx]" class="input-field" :placeholder="'Option ' + (idx + 1)">
+                        <input type="radio" :value="idx" v-model="newQuestion.correctIndex" class="accent-orange-500 w-6 h-6 self-center">
+                    </div>
+                    <button @click="addQuestion" class="w-full py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold transition">Add Question</button>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div v-for="(q, idx) in questions" :key="idx" class="glass rounded-xl p-6 relative group border border-gray-800 hover:border-orange-500/30 transition">
+                    <button @click="deleteQuestion(idx)" class="absolute top-4 right-4 text-gray-600 hover:text-red-500 transition"><i class="fa-solid fa-trash"></i></button>
+                    <h3 class="font-bold text-lg mb-2"><span class="text-orange-500 mr-2">Q{{ idx + 1 }}.</span> {{ q.text }}</h3>
+                    <ul class="space-y-1 ml-6 text-gray-400 text-sm">
+                        <li v-for="(opt, oi) in q.options" :key="oi" :class="{'text-green-400 font-bold': oi === q.correctIndex}">
+                            {{ String.fromCharCode(65 + oi) }}. {{ opt }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Take Mode -->
+        <div v-else class="max-w-2xl mx-auto">
+             <div v-if="questions.length === 0" class="text-center text-gray-500 py-10">
+                No questions available. Switch to edit mode to add some!
+            </div>
+            
+            <div v-else-if="!results">
+                <div v-for="(q, idx) in questions" :key="idx" class="glass rounded-xl p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-4 text-white"><span class="text-orange-500 mr-2">{{ idx + 1 }}.</span> {{ q.text }}</h3>
+                    <div class="space-y-2">
+                        <label v-for="(opt, oi) in q.options" :key="oi" class="flex items-center gap-3 p-3 rounded-lg border border-gray-800 hover:bg-gray-800 cursor-pointer transition">
+                            <input type="radio" :name="'q'+idx" :value="oi" v-model="userAnswers[idx]" class="accent-orange-500 w-4 h-4">
+                            <span class="text-gray-300">{{ opt }}</span>
+                        </label>
+                    </div>
+                </div>
+                <button @click="submitQuiz" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-lg shadow-lg hover:shadow-orange-500/20 transition transform hover:scale-[1.02]">Submit Quiz</button>
+            </div>
+
+            <!-- Results -->
+            <div v-else class="glass rounded-xl p-8 text-center">
+                <div class="text-6xl font-bold mb-4" :class="score >= questions.length / 2 ? 'text-green-500' : 'text-red-500'">
+                    {{ score }} / {{ questions.length }}
+                </div>
+                <p class="text-gray-400 mb-8">You answered {{ score }} questions correctly.</p>
+                <button @click="resetQuiz" class="px-6 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700">Try Again</button>
+            </div>
+        </div>
+        
+        <!-- Notification -->
+        <div v-if="notification" class="fixed top-24 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-bounce-in">
+            <span class="text-orange-400">✓</span> {{ notification }}
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    mode: 'edit',
+                    questions: [],
+                    newQuestion: { text: '', options: ['', '', '', ''], correctIndex: 0 },
+                    userAnswers: {},
+                    results: false,
+                    score: 0,
+                    notification: null
+                }
+            },
+            mounted() { this.loadFile(); },
+            methods: {
+                async loadFile() {
+                    try {
+                        const res = await fetch('./questions.json');
+                        if (res.ok) this.questions = await res.json();
+                    } catch (e) { console.error(e); }
+                },
+                addQuestion() {
+                    if (this.newQuestion.text && this.newQuestion.options.every(o => o)) {
+                        this.questions.push(JSON.parse(JSON.stringify(this.newQuestion)));
+                        this.newQuestion = { text: '', options: ['', '', '', ''], correctIndex: 0 };
+                        this.showNotification('Question added!');
+                    }
+                },
+                deleteQuestion(index) {
+                    this.questions.splice(index, 1);
+                },
+                submitQuiz() {
+                    let s = 0;
+                    this.questions.forEach((q, i) => {
+                        if (this.userAnswers[i] === q.correctIndex) s++;
+                    });
+                    this.score = s;
+                    this.results = true;
+                },
+                resetQuiz() {
+                    this.userAnswers = {};
+                    this.results = false;
+                    this.score = 0;
+                },
+                async saveFile() {
+                    try {
+                        if (window.showSaveFilePicker) {
+                            const handle = await window.showSaveFilePicker({ suggestedName: 'questions.json' });
+                            const writable = await handle.createWritable();
+                            await writable.write(JSON.stringify(this.questions, null, 2));
+                            await writable.close();
+                            this.showNotification('Saved to questions.json');
+                        } else {
+                            const blob = new Blob([JSON.stringify(this.questions, null, 2)], {type: 'application/json'});
+                            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'questions.json'; a.click();
+                            this.showNotification('Downloaded questions.json');
+                        }
+                    } catch (err) { console.error(err); }
+                },
+                showNotification(msg) {
+                    this.notification = msg;
+                    setTimeout(() => this.notification = null, 3000);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

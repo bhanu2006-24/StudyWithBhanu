@@ -1,39 +1,25 @@
-# Genz Data
+# StudyWithBhanu
 
-This repository contains the data and tools for the Genz project, including study resources, blog posts, calendars, and the PYQ practice engine.
+This repository contains data and tools for the Student Community project, focused on providing study resources, blog posts, calendars, and practice tools for students.
 
 ## Directory Structure
 
-- **pyq/**: Previous Year Question paper practice tool and scraper.
-  - Contains a Python Flask app for scraping and serving exams.
-  - Run `cd pyq && python app.py` to start the PYQ engine.
-- **wiki/**: Wiki data (courses, resources).
-- **blog/**: Blog posts and metadata.
-- **calendar/**: Academic calendar data.
-- **courses/**: Detailed course information.
+- **task/**: Task management and tracking.
+- **quiz/**: Quiz and practice questions.
+- **blog/**: Blog posts and news.
+- **calendar/**: Academic calendar and event tracking.
+- **courses/**: Course information and curriculum.
+- **resources/**: Study resources and materials.
+- **about/**: Project and team information.
+- **wiki/**: Wiki data.
+- **pyq/**: Previous Year Question paper tools.
 - **oppe/**: Online Proctoring Exam mock data.
 
 ## Getting Started
 
-### PYQ Application
+To use the tools locally, simply open the `index.html` files in the respective directories (e.g., `blog/index.html`, `task/index.html`) in your browser.
 
-To use the PYQ Practice and Scraper tools:
+## Contributing
 
-1. Navigate to the `pyq` directory:
-   ```bash
-   cd pyq
-   ```
-2. Install requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the application:
-   ```bash
-   python app.py
-   ```
-4. Open [http://localhost:5000](http://localhost:5000).
-
-### Contributing
-
-- **Data**: JSON files in strict formats.
-- **Tools**: Python scripts for automation.
+- **Data**: JSON files are used for data storage.
+- **Tools**: Simple HTML/JS interfaces for managing content.
