@@ -3,148 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Manager | Student Community</title>
+    <title>Profile | Student Community</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Markdown Support -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
         .glass { background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .input-field { background: #111; border: 1px solid #222; color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; width: 100%; outline: none; transition: all 0.3s; }
-        .input-field:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        .input-base { background: #111; border: 1px solid #222; color: white; padding: 0.5rem 0.75rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; font-size: 0.875rem; }
+        .input-base:focus { border-color: #8b5cf6; box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1); }
         .prose h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; color: white; }
-        .prose h2 { font-size: 1.3em; font-weight: bold; margin-bottom: 0.5em; color: #e5e5e5; }
-        .prose p { margin-bottom: 1em; color: #d4d4d4; }
-        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
-        .prose a { color: #6366f1; text-decoration: underline; }
+        .prose h2 { font-size: 1.25em; font-weight: bold; margin-bottom: 0.5em; color: #e5e5e5; margin-top: 1em; }
+        .prose p { margin-bottom: 0.75em; color: #d4d4d4; line-height: 1.6; }
+        .prose ul { list-style-type: disc; padding-left: 1.2em; margin-bottom: 1em; }
+        .prose a { color: #8b5cf6; text-decoration: none; }
+        .prose a:hover { text-decoration: underline; }
     </style>
 </head>
-<body class="min-h-screen relative overflow-x-hidden selection:bg-indigo-500/30">
+<body class="min-h-screen relative overflow-x-hidden selection:bg-violet-500/30">
 
     <div id="app" class="pb-20">
-        <!-- Cover Image -->
+        <!-- Cover -->
         <div class="h-64 w-full relative group">
-            <img :src="data.profile.cover" class="w-full h-full object-cover opacity-80">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#050505]"></div>
-            <button @click="editingCover = true" class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-2 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera"></i> Edit Cover</button>
+            <img :src="data.profile.cover || 'https://via.placeholder.com/1500x500'" class="w-full h-full object-cover opacity-80">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]"></div>
+            <button @click="openImageModal('cover')" class="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition text-xs font-bold"><i class="fa-solid fa-camera mr-2"></i>Edit Cover</button>
         </div>
 
-        <div class="max-w-5xl mx-auto px-6 -mt-32 relative z-10">
-            <div class="flex flex-col md:flex-row gap-8 items-start">
-                <!-- Sidebar / Basic Info -->
-                <div class="w-full md:w-1/3 flex flex-col gap-6">
-                    <div class="glass p-6 rounded-2xl text-center relative group">
-                        <div class="relative w-32 h-32 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-indigo-500 to-purple-500">
-                           <img :src="data.profile.avatar" class="w-full h-full rounded-full object-cover border-4 border-[#050505]">
-                           <button @click="editingAvatar = true" class="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-full shadow-lg"><i class="fa-solid fa-pencil text-xs"></i></button>
+        <div class="max-w-6xl mx-auto px-4 md:px-6 -mt-32 relative z-10">
+            <div class="flex flex-col lg:flex-row gap-8 items-start">
+                
+                <!-- Left Sidebar -->
+                <div class="w-full lg:w-1/3 flex flex-col gap-6">
+                    <!-- Profile Card -->
+                    <div class="glass p-6 rounded-2xl text-center relative">
+                        <div class="relative w-36 h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-violet-500 to-fuchsia-500 shadow-xl shadow-violet-500/20">
+                           <img :src="data.profile.avatar || 'https://via.placeholder.com/150'" class="w-full h-full rounded-full object-cover border-4 border-[#050505]">
+                           <button @click="openImageModal('avatar')" class="absolute bottom-1 right-2 bg-violet-600 hover:bg-violet-500 text-white w-8 h-8 rounded-full shadow-lg flex items-center justify-center transition"><i class="fa-solid fa-pencil text-xs"></i></button>
                         </div>
                         
                         <div v-if="!editingBasic">
                             <h1 class="text-2xl font-bold text-white mb-1">{{ data.profile.name }}</h1>
-                            <p class="text-indigo-400 font-medium mb-4">{{ data.profile.title }}</p>
-                            <button @click="editingBasic = true" class="text-xs text-gray-500 hover:text-white underline">Edit Basic Info</button>
+                            <p class="text-violet-400 font-medium text-sm mb-4">{{ data.profile.title }}</p>
+                            
+                            <div class="flex flex-col gap-2 text-sm text-gray-400 mb-6">
+                                <div v-if="data.profile.college" class="flex items-center justify-center gap-2"><i class="fa-solid fa-university text-gray-600"></i> {{ data.profile.college }}</div>
+                                <div v-if="data.profile.location" class="flex items-center justify-center gap-2"><i class="fa-solid fa-location-dot text-gray-600"></i> {{ data.profile.location }}</div>
+                            </div>
+
+                            <button @click="editingBasic = true" class="text-xs text-gray-500 hover:text-white underline">Edit Profile Info</button>
                         </div>
-                        <div v-else class="space-y-3 animate-fade-in">
-                            <input v-model="data.profile.name" class="input-field text-center font-bold" placeholder="Name">
-                            <input v-model="data.profile.title" class="input-field text-center text-sm" placeholder="Title/Role">
-                            <button @click="editingBasic = false" class="px-4 py-1 rounded bg-indigo-600/20 text-indigo-400 text-xs font-bold hover:bg-indigo-600 hover:text-white transition">Done</button>
+                        
+                        <div v-else class="space-y-3 animate-fade-in text-left">
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold">Name</label>
+                                <input v-model="data.profile.name" class="input-base" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold">Title</label>
+                                <input v-model="data.profile.title" class="input-base" placeholder="Student / Developer">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] text-gray-500 uppercase font-bold">Major</label>
+                                    <input v-model="data.profile.major" class="input-base" placeholder="CS">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-500 uppercase font-bold">Semester</label>
+                                    <input v-model="data.profile.semester" class="input-base" placeholder="Sem 4">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold">College</label>
+                                <input v-model="data.profile.college" class="input-base" placeholder="University Name">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold">Location</label>
+                                <input v-model="data.profile.location" class="input-base" placeholder="City, Country">
+                            </div>
+                            <button @click="editingBasic = false" class="w-full py-2 rounded bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition">Done</button>
                         </div>
 
                         <!-- Socials -->
-                        <div class="flex justify-center gap-3 mt-6 flex-wrap">
-                            <a v-for="(soc, idx) in data.socials" :key="idx" :href="soc.url" target="_blank" class="w-8 h-8 rounded-lg bg-[#222] hover:bg-indigo-600 text-gray-400 hover:text-white flex items-center justify-center transition" :title="soc.platform">
+                        <div class="flex justify-center gap-2 mt-6 flex-wrap">
+                            <a v-for="(soc, idx) in data.socials" :key="idx" :href="soc.url" target="_blank" class="w-9 h-9 rounded-lg bg-[#222] hover:bg-violet-600 text-gray-400 hover:text-white flex items-center justify-center transition border border-[#333] hover:border-violet-500 text-sm">
                                 <i :class="soc.icon"></i>
                             </a>
-                            <button @click="editingSocials = true" class="w-8 h-8 rounded-lg bg-[#222] hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition"><i class="fa-solid fa-plus"></i></button>
+                            <button @click="editingSocials = true" class="w-9 h-9 rounded-lg bg-[#222] hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition border border-[#333]"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+
+                        <!-- Resume Btn -->
+                        <div class="mt-6 pt-6 border-t border-[#222]">
+                            <div v-if="!editingResume">
+                                <a v-if="data.profile.resume" :href="data.profile.resume" target="_blank" class="flex items-center justify-center gap-2 text-sm text-gray-300 hover:text-white bg-[#1a1a1a] py-2 rounded-lg border border-[#333] hover:border-violet-500 transition">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> View Resume
+                                </a>
+                                <button v-else @click="editingResume=true" class="text-xs text-gray-500 hover:text-violet-400">+ Add Resume Link</button>
+                                <button v-if="data.profile.resume" @click="editingResume=true" class="mt-2 text-[10px] text-gray-600 hover:text-gray-400">Update Link</button>
+                            </div>
+                            <div v-else class="flex gap-2">
+                                <input v-model="data.profile.resume" class="input-base text-xs" placeholder="Resume URL (Drive/PDF)">
+                                <button @click="editingResume=false" class="px-3 bg-[#222] rounded text-white text-xs"><i class="fa-solid fa-check"></i></button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Details Box (Education/Skills) -->
+                    <!-- Skills -->
                     <div class="glass p-6 rounded-2xl">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-gray-200">Skills & Tech</h3>
-                            <button @click="addItem('skills')" class="text-xs text-indigo-400 hover:text-indigo-300">+ Add</button>
+                            <h3 class="font-bold text-gray-200 text-sm uppercase tracking-wider">Skills</h3>
+                            <button @click="addItem('skills')" class="text-xs bg-[#222] hover:bg-[#333] px-2 py-1 rounded text-gray-400 hover:text-white transition">+ Add</button>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                             <div v-for="(skill, idx) in data.details.skills" :key="idx" class="px-3 py-1 bg-[#1a1a1a] border border-[#333] rounded-full text-xs text-gray-300 flex items-center gap-2 group">
+                             <div v-for="(skill, idx) in data.details.skills" :key="idx" class="px-3 py-1.5 bg-[#1a1a1a] border border-[#333] rounded-lg text-xs text-gray-300 flex items-center gap-2 group hover:border-violet-500/50 transition">
                                  {{ skill }}
                                  <button @click="data.details.skills.splice(idx, 1)" class="text-gray-600 hover:text-red-500 hidden group-hover:block"><i class="fa-solid fa-times"></i></button>
                              </div>
                         </div>
                     </div>
+                    
+                    <!-- Quick Stats (Example) -->
+                    <div class="glass p-6 rounded-2xl grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-[#111] p-3 rounded-xl border border-[#222]">
+                            <div class="text-2xl font-bold text-white">{{ data.details.projects.length }}</div>
+                            <div class="text-[10px] text-gray-500 uppercase">Projects</div>
+                        </div>
+                        <div class="bg-[#111] p-3 rounded-xl border border-[#222]">
+                            <div class="text-2xl font-bold text-white">{{ data.profile.semester ? data.profile.semester.replace(/\D/g,'') : '-' }}</div>
+                            <div class="text-[10px] text-gray-500 uppercase">Semester</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Main Content (Bio) -->
-                <div class="w-full md:w-2/3 space-y-6">
-                    <!-- Bio Section -->
-                    <div class="glass p-8 rounded-2xl relative group">
-                        <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
-                            <h2 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">About Me</h2>
-                            <div class="flex gap-2">
-                                <button @click="data.profile.bioFormat = 'markdown'" :class="['text-xs px-3 py-1 rounded transition', data.profile.bioFormat === 'markdown' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-white']">Markdown</button>
-                                <button @click="data.profile.bioFormat = 'html'" :class="['text-xs px-3 py-1 rounded transition', data.profile.bioFormat === 'html' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-white']">HTML</button>
-                                <button @click="viewModel = !viewModel" class="text-xs px-3 py-1 rounded bg-[#222] text-gray-300 hover:bg-[#333] ml-2"><i :class="['fa-solid', viewModel ? 'fa-pen' : 'fa-eye']"></i></button>
-                            </div>
+                <!-- Right Main Content -->
+                <div class="w-full lg:w-2/3 space-y-6">
+                    
+                    <!-- Bio -->
+                    <div class="glass p-8 rounded-2xl relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">About Me</h2>
+                            <button @click="viewModel = !viewModel" class="text-xs px-3 py-1.5 rounded-lg bg-[#222] text-gray-400 hover:text-white border border-[#333] transition flex items-center gap-2">
+                                <i :class="['fa-solid', viewModel ? 'fa-pen' : 'fa-eye']"></i> {{ viewModel ? 'Edit' : 'View' }}
+                            </button>
                         </div>
 
-                        <div v-if="!viewModel">
-                            <textarea v-model="data.profile.bio" class="w-full h-64 bg-[#0a0a0a] border border-[#222] rounded-xl p-4 text-sm font-mono text-gray-300 focus:border-indigo-500/50 outline-none leading-relaxed resize-y" placeholder="Write your bio here..."></textarea>
-                            <p class="text-xs text-gray-600 mt-2 flex justify-between">
-                                <span>Supports {{ data.profile.bioFormat === 'markdown' ? 'Markdown' : 'HTML' }}</span>
-                                <span>{{ data.profile.bio.length }} chars</span>
-                            </p>
+                        <div v-if="!viewModel" class="animate-fade-in">
+                            <div class="flex gap-2 mb-2">
+                                <button @click="data.profile.bioFormat = 'markdown'" :class="['text-[10px] px-2 py-0.5 rounded transition', data.profile.bioFormat === 'markdown' ? 'bg-violet-600 text-white' : 'text-gray-500 bg-[#111]']">Markdown</button>
+                                <button @click="data.profile.bioFormat = 'html'" :class="['text-[10px] px-2 py-0.5 rounded transition', data.profile.bioFormat === 'html' ? 'bg-violet-600 text-white' : 'text-gray-500 bg-[#111]']">HTML</button>
+                            </div>
+                            <textarea v-model="data.profile.bio" class="w-full h-80 bg-[#0a0a0a] border border-[#222] rounded-xl p-4 text-sm font-mono text-gray-300 focus:border-violet-500/50 outline-none leading-relaxed resize-y" placeholder="Write your bio here..."></textarea>
                         </div>
-                        <div v-else class="prose prose-invert max-w-none min-h-[16rem]" v-html="renderContent(data.profile.bio, data.profile.bioFormat)"></div>
+                        <div v-else class="prose prose-invert max-w-none" v-html="renderContent(data.profile.bio, data.profile.bioFormat)"></div>
                     </div>
 
-                    <!-- Projects Section (Example of extensible list) -->
+                    <!-- Projects -->
                      <div class="glass p-8 rounded-2xl">
                         <div class="flex justify-between items-center mb-6">
                              <h2 class="text-xl font-bold text-white">Featured Projects</h2>
-                             <button @click="addProject" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20">+ Add Project</button>
+                             <button @click="addProject" class="px-3 py-1.5 rounded-lg bg-[#222] hover:bg-[#333] text-gray-300 hover:text-white text-xs font-bold border border-[#333] transition">+ Add Project</button>
                         </div>
                         
-                        <div class="space-y-4">
-                            <div v-for="(project, idx) in data.details.projects" :key="idx" class="bg-[#111] border border-[#222] p-4 rounded-xl relative group hover:border-indigo-500/30 transition">
-                                <button @click="data.details.projects.splice(idx, 1)" class="absolute top-4 right-4 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button>
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div class="md:col-span-1 h-24 bg-black rounded-lg overflow-hidden border border-[#333]">
-                                        <img :src="project.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="(project, idx) in data.details.projects" :key="idx" class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden hover:border-violet-500/30 transition group relative">
+                                <button @click="data.details.projects.splice(idx, 1)" class="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition z-10 hover:bg-red-500"><i class="fa-solid fa-trash text-xs"></i></button>
+                                
+                                <div class="h-32 bg-[#151515] relative overflow-hidden">
+                                    <img :src="project.image || 'https://via.placeholder.com/400x200?text=Project'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                    <div class="absolute bottom-2 right-2 flex gap-1">
+                                        <input v-model="project.image" class="bg-black/70 text-[10px] text-gray-300 px-2 py-0.5 rounded border border-white/10 outline-none w-32 opacity-0 group-hover:opacity-100 transition" placeholder="Image URL">
                                     </div>
-                                    <div class="md:col-span-3 space-y-2">
-                                        <input v-model="project.title" class="bg-transparent font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Project Title">
-                                        <textarea v-model="project.desc" class="bg-transparent text-sm text-gray-400 w-full outline-none resize-none h-12 placeholder-gray-700" placeholder="Short description..."></textarea>
-                                        <div class="flex gap-2">
-                                            <input v-model="project.link" class="bg-[#1a1a1a] text-xs text-indigo-400 rounded px-2 py-1 w-full outline-none" placeholder="Project URL">
-                                            <input v-model="project.image" class="bg-[#1a1a1a] text-xs text-gray-500 rounded px-2 py-1 w-full outline-none" placeholder="Image URL">
-                                        </div>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <input v-model="project.title" class="bg-transparent font-bold text-white w-full outline-none placeholder-gray-600 mb-1" placeholder="Project Title">
+                                    <textarea v-model="project.desc" class="bg-transparent text-xs text-gray-400 w-full outline-none resize-none h-12 leading-relaxed mb-3 placeholder-gray-700" placeholder="Short description..."></textarea>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-link text-gray-600 text-xs"></i>
+                                        <input v-model="project.link" class="bg-transparent text-xs text-violet-400 hover:text-violet-300 w-full outline-none" placeholder="Project Link">
                                     </div>
                                 </div>
                             </div>
                         </div>
                      </div>
+                     
                 </div>
             </div>
         </div>
 
         <!-- Floating Actions -->
         <div class="fixed bottom-6 right-6 flex gap-3 z-50">
-            <button @click="loadFile" class="px-5 py-3 rounded-full bg-[#222] hover:bg-[#333] text-gray-300 shadow-lg border border-[#333] transition"><i class="fa-solid fa-rotate"></i></button>
-            <button @click="saveFile" class="px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/20 hover:scale-105 transition flex items-center gap-2"><i class="fa-solid fa-save"></i> Save Profile</button>
+            <button @click="loadFile" class="w-12 h-12 rounded-full bg-[#111] hover:bg-[#222] text-gray-300 shadow-xl border border-[#333] transition flex items-center justify-center"><i class="fa-solid fa-refresh"></i></button>
+            <button @click="saveFile" class="px-6 h-12 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-xl shadow-violet-600/20 hover:scale-105 transition flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
         </div>
 
         <!-- Modals -->
-        <!-- Image Edit Modal -->
-        <div v-if="editingAvatar || editingCover" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div v-if="editingImage" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div class="bg-[#111] p-6 rounded-xl w-full max-w-md border border-[#333]">
-                <h3 class="text-white font-bold mb-4">Update Image URL</h3>
-                <input v-if="editingAvatar" v-model="data.profile.avatar" class="input-field mb-4" placeholder="Avatar URL">
-                <input v-if="editingCover" v-model="data.profile.cover" class="input-field mb-4" placeholder="Cover URL">
+                <h3 class="text-white font-bold mb-4">Update Image</h3>
+                <input v-model="tempImage" class="input-base mb-4" placeholder="Image URL">
                 <div class="flex justify-end gap-2">
-                    <button @click="editingAvatar = false; editingCover = false" class="px-4 py-2 rounded text-gray-400 hover:text-white">Close</button>
+                    <button @click="editingImage = null" class="px-4 py-2 rounded text-gray-400 hover:text-white text-sm">Cancel</button>
+                    <button @click="saveImage" class="px-4 py-2 rounded bg-violet-600 text-white text-sm font-bold">Update</button>
                 </div>
             </div>
         </div>
@@ -152,23 +214,24 @@
         <!-- Social Editor -->
         <div v-if="editingSocials" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div class="bg-[#111] p-6 rounded-xl w-full max-w-lg border border-[#333]">
-                 <h3 class="text-white font-bold mb-4">Manage Social Links</h3>
-                 <div class="space-y-3 max-h-96 overflow-y-auto mb-4">
-                     <div v-for="(soc, idx) in data.socials" :key="idx" class="flex gap-2 items-center">
-                         <input v-model="soc.platform" class="input-field w-1/3 text-xs" placeholder="Platform">
-                         <input v-model="soc.url" class="input-field flex-1 text-xs" placeholder="URL">
-                         <input v-model="soc.icon" class="input-field w-1/4 text-xs font-mono" placeholder="fa-brands fa-...">
-                         <button @click="data.socials.splice(idx, 1)" class="text-red-500 hover:bg-[#222] p-2 rounded"><i class="fa-solid fa-trash"></i></button>
+                 <h3 class="text-white font-bold mb-4">Social Links</h3>
+                 <div class="space-y-3 max-h-96 overflow-y-auto mb-4 custom-scroll">
+                     <div v-for="(soc, idx) in data.socials" :key="idx" class="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-[#333]">
+                         <input v-model="soc.platform" class="bg-transparent text-xs text-white w-20 outline-none" placeholder="Platform">
+                         <div class="h-4 w-px bg-[#333]"></div>
+                         <input v-model="soc.url" class="bg-transparent text-xs text-blue-400 flex-1 outline-none" placeholder="URL">
+                         <input v-model="soc.icon" class="bg-transparent text-[10px] text-gray-500 font-mono w-24 outline-none text-right" placeholder="fa-brands...">
+                         <button @click="data.socials.splice(idx, 1)" class="text-gray-600 hover:text-red-500 px-2"><i class="fa-solid fa-times"></i></button>
                      </div>
                  </div>
-                 <button @click="data.socials.push({platform:'', url:'', icon:'fa-solid fa-link'})" class="w-full py-2 border border-dashed border-[#333] rounded text-gray-500 hover:text-white text-xs uppercase font-bold tracking-wide">+ Add Link</button>
-                 <button @click="editingSocials = false" class="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-white font-bold">Done</button>
+                 <button @click="data.socials.push({platform:'', url:'', icon:'fa-solid fa-link'})" class="w-full py-2 border border-dashed border-[#333] rounded text-gray-500 hover:text-white text-xs uppercase font-bold tracking-wide transition hover:border-violet-500">+ Add Link</button>
+                 <button @click="editingSocials = false" class="mt-4 w-full py-2 bg-violet-600 hover:bg-violet-500 rounded text-white font-bold">Done</button>
             </div>
         </div>
 
         <!-- Notification -->
-        <div v-if="notification" class="fixed top-6 left-1/2 -translate-x-1/2 z-[70] px-6 py-3 rounded-full shadow-2xl border border-indigo-500/50 bg-[#111] text-white flex items-center gap-3 animate-fade-in-up">
-            <span class="text-indigo-400 text-lg"><i class="fa-solid fa-circle-check"></i></span> {{ notification }}
+        <div v-if="notification" class="fixed top-6 left-1/2 -translate-x-1/2 z-[70] px-6 py-3 rounded-full shadow-2xl border border-violet-500/50 bg-[#111] text-white flex items-center gap-3 animate-fade-in-up">
+            <span class="text-violet-400"><i class="fa-solid fa-circle-check"></i></span> {{ notification }}
         </div>
 
     </div>
@@ -178,11 +241,12 @@
         createApp({
             data() {
                 return {
-                    data: { profile: { name:'', title:'', avatar:'', cover:'', bio:'', bioFormat:'markdown'}, socials: [], details: { skills:[], projects: [] } },
-                    editingAvatar: false,
-                    editingCover: false,
+                    data: { profile: { name:'', title:'', avatar:'', cover:'', bio:'', bioFormat:'markdown', college:'', location:'', major:'', semester:'', resume:''}, socials: [], details: { skills:[], projects: [] } },
+                    editingImage: null, // 'avatar' or 'cover'
+                    tempImage: '',
                     editingBasic: false,
                     editingSocials: false,
+                    editingResume: false,
                     viewModel: true,
                     notification: null
                 }
@@ -193,8 +257,8 @@
                     try {
                         const res = await fetch('./data.json');
                         if (res.ok) this.data = await res.json();
-                        // Defaults
                         if(!this.data.details) this.data.details = { skills: [], projects: [] };
+                        if(!this.data.profile) this.data.profile = {};
                     } catch (e) { console.error(e); }
                 },
                 renderContent(content, format) {
@@ -204,12 +268,20 @@
                 },
                 addItem(type) {
                     if (type === 'skills') {
-                        const s = prompt("Enter skill name:");
+                        const s = prompt("Enter skill:");
                         if (s) this.data.details.skills.push(s);
                     }
                 },
                 addProject() {
                     this.data.details.projects.push({ title: 'New Project', desc: '', link: '', image: '' });
+                },
+                openImageModal(type) {
+                    this.editingImage = type;
+                    this.tempImage = this.data.profile[type];
+                },
+                saveImage() {
+                    this.data.profile[this.editingImage] = this.tempImage;
+                    this.editingImage = null;
                 },
                 async saveFile() {
                      try {
@@ -218,11 +290,11 @@
                             const writable = await handle.createWritable();
                             await writable.write(JSON.stringify(this.data, null, 2));
                             await writable.close();
-                            this.showNotification('Profile saved successfully!');
+                            this.showNotification('Profile Saved!');
                         } else {
                              const blob = new Blob([JSON.stringify(this.data, null, 2)], {type: 'application/json'});
                              const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'data.json'; a.click();
-                             this.showNotification('Downloaded profile data');
+                             this.showNotification('Profile Downloaded');
                         }
                     } catch (err) { console.error(err); }
                 },
