@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Manager - GenZ IIITian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Markdown & Math Support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; background: #000; color: #e5e5e5; height: 100vh; overflow: hidden; }
+        .glass { background: rgba(20, 20, 20, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .input-base { background: #0a0a0a; border: 1px solid #262626; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; font-size: 0.875rem; transition: all 0.2s; }
+        .input-base:focus { outline: none; border-color: #6366f1; background: #0f0f0f; }
+        .label { display: block; font-size: 0.7rem; color: #737373; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .preview-content h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: white; }
+        .preview-content h2 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #e5e5e5; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+        .preview-content p { color: #a3a3a3; line-height: 1.6; margin-bottom: 1rem; }
+        .preview-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #d4d4d4; }
+        
+        /* Accents */
+        .accent-border:hover { border-color: #6366f1; }
+        .active-course { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.4); }
+        .nav-item.active { background: #fff; color: #000; }
+        .nav-item:not(.active):hover { background: rgba(255,255,255,0.1); }
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex h-full text-sm" v-cloak>
+        <!-- Sidebar Navigation -->
+        <div :class="['bg-[#050505] flex flex-col h-full border-r border-[#1a1a1a] flex-shrink-0 transition-all duration-300 ease-in-out', sidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full opacity-0 border-none overflow-hidden']">
+            <!-- Header -->
+            <div class="p-5 border-b border-[#1a1a1a]">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-900/50">C</div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight text-white">Course Editor</h1>
+                        <p class="text-[10px] text-gray-500 font-mono">v3.0 • Curriculum Studio</p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex bg-[#111] p-1 rounded-lg mb-4 overflow-x-auto no-scrollbar gap-1">
+                     <button v-for="level in ['foundation', 'diploma', 'degree']" 
+                        @click="currentLevel = level"
+                        :class="['flex-1 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all duration-300', 
+                                currentLevel === level ? 'bg-[#222] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300']">
+                        {{ level.replace('_', ' ') }}
+                    </button>
+                </div>
+                
+                <!-- Search -->
+                <div class="relative group">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-600 group-focus-within:text-indigo-500 transition-colors"></i>
+                    <input v-model="searchQuery" class="input-base pl-9 bg-[#0a0a0a] border-[#222] focus:border-indigo-500/50 placeholder-gray-700" placeholder="Filter courses...">
+                </div>
+            </div>
+
+            <!-- Course List -->
+            <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1">
+                <template v-if="filteredCourses.length > 0">
+                    <div v-for="c in filteredCourses" :key="c.code" 
+                         @click="loadCourse(c)"
+                         :class="['p-4 rounded-xl cursor-pointer transition-all duration-300 border group relative overflow-hidden', 
+                                  selectedCourse && selectedCourse.code === c.code ? 'active-course border-indigo-500/30' : 'bg-[#0f0f0f] border-[#1a1a1a] hover:border-[#333] hover:bg-[#141414]']">
+                        
+                        <div class="flex justify-between items-start relative z-10">
+                            <span :class="['text-[10px] font-mono tracking-wider px-2 py-0.5 rounded transition-colors', selectedCourse && selectedCourse.code === c.code ? 'bg-indigo-500/20 text-indigo-300' : 'bg-white/5 text-gray-400 group-hover:text-indigo-400']">{{ c.code }}</span>
+                            <span class="text-[10px] text-gray-600 font-medium group-hover:text-gray-400">{{ c.credits }} Cr</span>
+                        </div>
+                        <div class="font-medium text-gray-300 mt-3 text-sm truncate group-hover:text-white transition-colors relative z-10">{{ c.name }}</div>
+                        
+                        <!-- Hover Glow -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-700 pointer-events-none"></div>
+                    </div>
+                </template>
+                <div v-else class="text-center py-10 text-gray-600">
+                    <i class="fa-regular fa-folder-open text-2xl mb-2 opacity-50"></i>
+                    <p class="text-xs">No courses found</p>
+                </div>
+            </div>
+            
+            <!-- Footer Actions -->
+            <div class="p-4 border-t border-[#1a1a1a] bg-[#080808]">
+                 <button @click="saveFile" :disabled="!selectedCourse" class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/20">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Save Course Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col bg-[#000] relative overflow-hidden">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div v-if="selectedCourse" class="h-full flex flex-col relative z-10">
+                <!-- Toolbar -->
+                <div class="h-16 border-b border-[#1a1a1a] flex justify-between items-center px-6 bg-[#000]/80 backdrop-blur-sm sticky top-0 z-20">
+                    <div class="flex items-center gap-4">
+                        <button @click="toggleSidebar" class="w-8 h-8 rounded-md bg-[#111] hover:bg-[#222] flex items-center justify-center text-gray-400 hover:text-white transition border border-[#222]">
+                            <i :class="['fa-solid transition-transform', sidebarOpen ? 'fa-angles-left' : 'fa-angles-right']"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-xl font-bold text-white tracking-tight flex items-center gap-3">
+                                {{ selectedCourse.name }}
+                                <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-white/10 text-gray-300 font-mono">{{ selectedCourse.code }}</span>
+                            </h2>
+                        </div>
+                    </div>
+                    
+                    <div class="flex bg-[#111] rounded-lg p-1 border border-[#222]">
+                        <button @click="viewMode = 'preview'" :class="['px-6 py-1.5 rounded-md text-xs font-medium transition-all', viewMode === 'preview' ? 'bg-[#333] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300']">
+                            <i class="fa-regular fa-eye mr-2"></i> Preview
+                        </button>
+                        <button @click="viewMode = 'edit'" :class="['px-6 py-1.5 rounded-md text-xs font-medium transition-all', viewMode === 'edit' ? 'bg-[#333] text-white shadow-sm' : 'text-gray-500 hover:text-gray-300']">
+                            <i class="fa-solid fa-pen-to-square mr-2"></i> Editor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Content Area -->
+                <div class="flex-1 overflow-y-auto custom-scroll">
+                    
+                    <!-- PREVIEW MODE -->
+                    <div v-if="viewMode === 'preview'" class="max-w-4xl mx-auto p-10 preview-content">
+                        <!-- Hero Section -->
+                        <div class="mb-12">
+                             <span class="text-indigo-400 font-bold tracking-wider text-xs uppercase mb-2 block">{{ selectedCourse.level }} • {{ selectedCourse.credits }} Credits</span>
+                             <h1 class="text-4xl md:text-5xl mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">{{ selectedCourse.name }}</h1>
+                             <div class="text-lg text-gray-400 max-w-2xl prose prose-invert math-content" v-html="renderMarkdown(selectedCourse.description)"></div>
+                             
+                             <div class="flex gap-4 mt-6">
+                                 <div class="flex flex-col">
+                                     <span class="label">Fee</span>
+                                     <span class="text-white font-mono">₹{{ selectedCourse.fee }}</span>
+                                 </div>
+                                 <div class="w-px bg-white/10"></div>
+                                 <div class="flex flex-col">
+                                     <span class="label">Prerequisites</span>
+                                     <span class="text-white">{{ selectedCourse.pre.join(', ') || 'None' }}</span>
+                                 </div>
+                                  <div class="w-px bg-white/10"></div>
+                                 <div class="flex flex-col">
+                                     <span class="label">Exam Structure</span>
+                                     <div class="flex gap-2 text-xs text-gray-400">
+                                         <span v-if="selectedCourse.exams.q1" class="bg-blue-900/30 text-blue-300 px-2 rounded">Quiz 1</span>
+                                         <span v-if="selectedCourse.exams.q2" class="bg-blue-900/30 text-blue-300 px-2 rounded">Quiz 2</span>
+                                         <span v-if="selectedCourse.exams.et" class="bg-purple-900/30 text-purple-300 px-2 rounded">End Term</span>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+
+                        <!-- Syllabus Content -->
+                        <div v-if="selectedCourse.weeks && selectedCourse.weeks.length">
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-list-check text-indigo-500"></i> Course Content</h3>
+                            <div class="space-y-4">
+                                <div v-for="(week, idx) in selectedCourse.weeks" :key="week.id" class="border border-[#222] bg-[#0a0a0a] rounded-xl overflow-hidden">
+                                     <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-[#111] transition" @click="togglePreviewWeek(week.id)">
+                                         <div class="flex items-center gap-4">
+                                             <div class="w-10 h-10 rounded-full bg-[#151515] flex items-center justify-center text-gray-500 font-mono text-xs font-bold border border-[#222]">W{{ idx + 1 }}</div>
+                                             <h4 class="font-medium text-gray-200">{{ week.title }}</h4>
+                                         </div>
+                                         <i :class="['fa-solid text-gray-600 transition', previewOpenWeeks.includes(week.id) ? 'fa-minus' : 'fa-plus']"></i>
+                                     </div>
+                                     <div v-if="previewOpenWeeks.includes(week.id)" class="p-4 pt-0 border-t border-[#222] bg-[#0c0c0c]">
+                                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                             <!-- Unified Preview Render -->
+                                             <div class="space-y-6">
+                                                 <div v-for="item in week.content" :key="item.id" class="animate-fade-in">
+                                                     
+                                                     <!-- Lecture -->
+                                                     <div v-if="item.type === 'lecture'" class="flex gap-4 items-center group cursor-pointer" @click="playVideo(item.youtubeId)">
+                                                          <div class="w-10 h-10 rounded-full bg-[#151515] hover:bg-red-500/10 flex items-center justify-center border border-[#222] group-hover:border-red-500/50 transition">
+                                                              <i class="fa-solid fa-play text-gray-400 group-hover:text-red-500 text-xs"></i>
+                                                          </div>
+                                                          <div class="flex-1">
+                                                              <h4 class="text-sm font-medium text-gray-300 group-hover:text-white transition">{{ item.title }}</h4>
+                                                              <span class="text-xs font-mono text-gray-600">{{ item.duration }}</span>
+                                                          </div>
+                                                     </div>
+
+                                                     <!-- Resource -->
+                                                     <div v-else-if="item.type === 'resource'">
+                                                          <!-- Link/PDF -->
+                                                          <a v-if="item.resourceType === 'url' || item.resourceType === 'pdf'" :href="item.url" target="_blank" class="flex gap-4 items-center group hover:bg-[#111] p-2 -mx-2 rounded-lg transition">
+                                                              <div class="w-10 h-10 rounded-full bg-[#151515] flex items-center justify-center border border-[#222]">
+                                                                  <i class="fa-solid fa-link text-emerald-500 text-xs"></i>
+                                                              </div>
+                                                              <div class="flex-1">
+                                                                  <h4 class="text-sm font-medium text-emerald-400 underline decoration-emerald-500/30 underline-offset-4 group-hover:decoration-emerald-500/80 transition">{{ item.title }}</h4>
+                                                                  <span class="text-[10px] text-gray-600 font-mono">{{ item.url }}</span>
+                                                              </div>
+                                                          </a>
+
+                                                          <!-- Image -->
+                                                          <div v-else-if="item.resourceType === 'image'" class="space-y-2">
+                                                              <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-image"></i> {{ item.title }}</h4>
+                                                              <img :src="item.url" class="rounded-lg border border-[#222] bg-black max-w-full h-auto max-h-96">
+                                                          </div>
+
+                                                          <!-- Markdown Note -->
+                                                          <div v-else-if="item.resourceType === 'markdown'" class="bg-[#111] border border-[#222] p-6 rounded-2xl relative overflow-hidden group/md">
+                                                              <div class="absolute top-0 left-0 w-1 h-full bg-pink-500/50"></div>
+                                                               <h4 class="text-sm font-bold text-pink-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-note-sticky"></i> {{ item.title }}</h4>
+                                                               <div class="prose prose-invert prose-sm max-w-none text-gray-400 math-content" v-html="renderMarkdown(item.content)"></div>
+                                                           </div>
+                                                     </div>
+
+                                                     <!-- Quiz -->
+                                                     <div v-else-if="item.type === 'quiz'" class="bg-[#111] border border-[#222] p-5 rounded-xl border-l-4 border-l-orange-500/50">
+                                                          <div class="flex justify-between items-center mb-4 border-b border-[#222] pb-3">
+                                                              <h4 class="text-sm font-bold text-gray-200 flex items-center gap-2"><i class="fa-solid fa-list-check text-orange-500"></i> {{ item.title }}</h4>
+                                                              <span class="text-[10px] bg-orange-900/20 text-orange-400 px-2 py-0.5 rounded">{{ item.questions ? item.questions.length : 0 }} Questions</span>
+                                                          </div>
+                                                          <div class="space-y-6">
+                                                              <div v-for="(q, qi) in item.questions" class="text-sm text-gray-400">
+                                                                  <p class="mb-2 text-gray-200 font-medium"><span class="text-orange-500 mr-1">{{ qi+1 }}.</span> {{ q.text }}</p>
+                                                                  
+                                                                  <div v-if="q.type === 'mcq' || q.type === 'msq'" class="space-y-1 ml-4">
+                                                                      <div v-for="opt in q.options" class="flex gap-2 items-center text-xs p-1 hover:bg-[#1a1a1a] rounded cursor-pointer">
+                                                                           <div class="w-4 h-4 rounded-full border border-[#333] flex items-center justify-center"><div class="w-2 h-2 rounded-full bg-gray-600 opacity-0 hover:opacity-100"></div></div>
+                                                                           <span>{{ opt }}</span>
+                                                                      </div>
+                                                                  </div>
+                                                                  
+                                                                   <div v-if="q.type === 'nat'" class="ml-4">
+                                                                       <input class="bg-[#050505] border border-[#222] rounded px-2 py-1 text-xs w-32 focus:border-orange-500/50 focus:outline-none" placeholder="Answer">
+                                                                  </div>
+                                                              </div>
+                                                          </div>
+                                                     </div>
+
+                                                 </div>
+                                             </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div> <!-- Closes 169 (weeks) -->
+                    </div> <!-- Closes 139 (preview viewmode) -->
+
+                    <!-- EDITOR MODE -->
+                    <div v-else-if="viewMode === 'edit'" class="max-w-6xl mx-auto p-8 pb-40">
+                         
+                         <!-- Meta Cards -->
+                         <div class="grid grid-cols-12 gap-6 mb-8">
+                             <!-- Main Info -->
+                             <div class="col-span-8 bg-[#0a0a0a] border border-[#222] p-6 rounded-2xl relative group focus-within:border-indigo-500/50 transition-colors">
+                                 <div class="absolute top-4 right-4 text-xs font-mono text-gray-600">{{ selectedCourse.id }}</div>
+                                 <h3 class="text-indigo-400 font-bold mb-6 flex items-center gap-2 text-xs uppercase tracking-wider"><i class="fa-solid fa-circle-info"></i> Course Essentials</h3>
+                                 <div class="space-y-4">
+                                     <div>
+                                         <label class="label">Course Titles</label>
+                                         <input v-model="selectedCourse.name" class="input-base text-lg font-bold" placeholder="e.g. Introduction to Data Science">
+                                     </div>
+                                     <div class="grid grid-cols-2 gap-4">
+                                         <div>
+                                             <label class="label">Course Code</label>
+                                             <input v-model="selectedCourse.code" class="input-base font-mono text-indigo-300" placeholder="BSCS1001">
+                                         </div>
+                                         <div>
+                                            <label class="label">Designated Level</label>
+                                            <select v-model="selectedCourse.level" class="input-base capitalize">
+                                                <option value="foundation">Foundation</option>
+                                                <option value="diploma">Diploma</option>
+                                                <option value="degree">Degree</option>
+                                                <option value="pg_diploma">PG Diploma</option>
+                                                <option value="mtech">MTech</option>
+                                            </select>
+                                         </div>
+                                     </div>
+                                     <div>
+                                         <label class="label">Synopsis <span class="text-gray-600 font-normal normal-case ml-2">(Markdown Supported)</span></label>
+                                         <textarea v-model="selectedCourse.description" class="input-base h-28 resize-y leading-relaxed text-gray-300" placeholder="Brief overview of the course..."></textarea>
+                                     </div>
+                                 </div>
+                             </div>
+
+                             <!-- Config Side Panel -->
+                             <div class="col-span-4 space-y-6">
+                                 <!-- Grading Scheme -->
+                                 <div class="bg-[#0a0a0a] border border-[#222] p-6 rounded-2xl">
+                                     <h3 class="text-gray-400 font-bold mb-4 text-xs uppercase tracking-wider">Grading Scheme (Weights)</h3>
+                                     <div class="space-y-3">
+                                         <div>
+                                            <div class="flex justify-between text-[10px] mb-1 text-gray-500"><span>Quiz 1</span><span>{{selectedCourse.grading.q1}}%</span></div>
+                                            <input type="range" v-model.number="selectedCourse.grading.q1" class="w-full accent-indigo-500 bg-[#222] h-1 rounded-lg appearance-none cursor-pointer">
+                                         </div>
+                                         <div>
+                                            <div class="flex justify-between text-[10px] mb-1 text-gray-500"><span>Quiz 2</span><span>{{selectedCourse.grading.q2}}%</span></div>
+                                            <input type="range" v-model.number="selectedCourse.grading.q2" class="w-full accent-indigo-500 bg-[#222] h-1 rounded-lg appearance-none cursor-pointer">
+                                         </div>
+                                         <div>
+                                            <div class="flex justify-between text-[10px] mb-1 text-gray-500"><span>End Term</span><span>{{selectedCourse.grading.endTerm}}%</span></div>
+                                            <input type="range" v-model.number="selectedCourse.grading.endTerm" class="w-full accent-purple-500 bg-[#222] h-1 rounded-lg appearance-none cursor-pointer">
+                                         </div>
+                                         <div>
+                                            <div class="flex justify-between text-[10px] mb-1 text-gray-500"><span>Assignments</span><span>{{selectedCourse.grading.assignments}}%</span></div>
+                                            <input type="range" v-model.number="selectedCourse.grading.assignments" class="w-full accent-green-500 bg-[#222] h-1 rounded-lg appearance-none cursor-pointer">
+                                         </div>
+                                         <div class="pt-2 border-t border-[#222] flex justify-between text-xs font-bold" :class="(selectedCourse.grading.q1 + selectedCourse.grading.q2 + selectedCourse.grading.endTerm + selectedCourse.grading.assignments) === 100 ? 'text-green-400' : 'text-red-400'">
+                                             <span>Total:</span>
+                                             <span>{{ selectedCourse.grading.q1 + selectedCourse.grading.q2 + selectedCourse.grading.endTerm + selectedCourse.grading.assignments }}%</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Books & References -->
+                                 <div class="bg-[#0a0a0a] border border-[#222] p-6 rounded-2xl">
+                                     <div class="flex justify-between items-end mb-3">
+                                         <label class="text-gray-400 font-bold text-xs uppercase tracking-wider">Textbooks</label>
+                                         <button @click="selectedCourse.books.push({title: '', author: ''})" class="text-[10px] text-indigo-400 hover:text-white">+ Add</button>
+                                     </div>
+                                     <div class="space-y-2">
+                                         <div v-for="(book, bi) in selectedCourse.books" :key="bi" class="bg-[#111] p-2 rounded border border-[#222] flex gap-2 relative group">
+                                             <div class="flex-1 space-y-1">
+                                                <input v-model="book.title" class="input-base text-xs py-1 h-auto" placeholder="Book Title">
+                                                <input v-model="book.author" class="input-base text-[10px] py-1 h-auto text-gray-500" placeholder="Author">
+                                             </div>
+                                             <button @click="selectedCourse.books.splice(bi, 1)" class="absolute top-1 right-1 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-times"></i></button>
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <!-- Tags/Prereqs -->
+                                 <div class="bg-[#0a0a0a] border border-[#222] p-6 rounded-2xl">
+                                     <label class="label">Prerequisites</label>
+                                     <div class="flex flex-wrap gap-2 mb-2">
+                                         <span v-for="(pre, idx) in selectedCourse.pre" :key="idx" class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[10px] flex items-center gap-2 group hover:border-red-500/50">
+                                             {{ pre }} <button @click="selectedCourse.pre.splice(idx, 1)" class="hidden group-hover:block text-red-400"><i class="fa-solid fa-times"></i></button>
+                                         </span>
+                                     </div>
+                                     <input @keydown.enter="selectedCourse.pre.push($event.target.value.toUpperCase()); $event.target.value=''" class="input-base text-xs" placeholder="+ Add Code (Enter)">
+                                 </div>
+                             </div>
+                         </div>
+
+                         <!-- Content Editor -->
+                         <div class="bg-[#0a0a0a] border border-[#222] rounded-2xl overflow-hidden shadow-2xl shadow-indigo-900/10">
+                             <div class="p-6 border-b border-[#222] bg-[#0c0c0c] flex justify-between items-center sticky top-0 z-10 backdrop-blur-md bg-[#0c0c0c]/90">
+                                 <div>
+                                     <h3 class="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-layer-group text-indigo-500"></i> Curriculum Builder</h3>
+                                     <p class="text-xs text-gray-500 mt-1">{{ selectedCourse.weeks.length }} Weeks • Total Learning Path</p>
+                                 </div>
+                                 <div class="flex items-center gap-2">
+                                     <div class="flex bg-[#151515] rounded p-1 border border-[#222]">
+                                         <button @click="expandAllWeeks" class="px-3 py-1.5 text-[10px] text-gray-400 hover:text-white transition"><i class="fa-solid fa-expand mr-1"></i> Expand</button>
+                                         <div class="w-px bg-[#333] my-1"></div>
+                                         <button @click="collapseAllWeeks" class="px-3 py-1.5 text-[10px] text-gray-400 hover:text-white transition"><i class="fa-solid fa-compress mr-1"></i> Collapse</button>
+                                     </div>
+                                     <button @click="selectedCourse.weeks.push({weekNum: selectedCourse.weeks.length+1, id: Date.now(), title: 'New Week', content: []})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-lg shadow-indigo-900/20">
+                                         <i class="fa-solid fa-plus mr-1"></i> Add Week
+                                     </button>
+                                 </div>
+                             </div>
+                             
+                             <div class="divide-y divide-[#1a1a1a]">
+                                 <div v-for="(week, idx) in selectedCourse.weeks" :key="idx" :class="['bg-[#050505] transition-colors', editOpenWeeks.includes(idx) ? 'bg-[#080808]' : 'hover:bg-[#0a0a0a]']">
+                                     <!-- Week Header Editor -->
+                                     <div class="p-4 flex items-center gap-4 group cursor-pointer select-none" @click="toggleEditWeek(idx)">
+                                         <div class="flex flex-col items-center gap-1 text-gray-600 group-hover:text-indigo-500 transition-colors">
+                                             <button @click.stop="moveItem(selectedCourse.weeks, idx, -1)" class="hover:text-white"><i class="fa-solid fa-caret-up"></i></button>
+                                             <span class="font-mono font-bold text-xs bg-[#151515] px-2 py-1 rounded border border-[#222] min-w-[3rem] text-center">W{{ idx + 1 }}</span>
+                                             <button @click.stop="moveItem(selectedCourse.weeks, idx, 1)" class="hover:text-white"><i class="fa-solid fa-caret-down"></i></button>
+                                         </div>
+                                         
+                                         <div class="flex-1">
+                                             <input v-model="week.title" @click.stop class="bg-transparent text-sm font-medium text-white focus:outline-none w-full placeholder-gray-700 py-1 border-b border-transparent focus:border-indigo-500/50 transition-colors" placeholder="Week Title (e.g. Introduction to Vectors)">
+                                             <div class="flex gap-4 text-[10px] text-gray-500 mt-1">
+                                                 <span class="flex items-center gap-1"><i class="fa-solid fa-video"></i> {{ week.content ? week.content.filter(x => x.type === 'lecture').length : 0 }} Lectures</span>
+                                                 <span class="flex items-center gap-1"><i class="fa-solid fa-file"></i> {{ week.content ? week.content.filter(x => x.type === 'resource').length : 0 }} Resources</span>
+                                                 <span class="flex items-center gap-1"><i class="fa-solid fa-list-check"></i> {{ week.content ? week.content.filter(x => x.type === 'quiz').length : 0 }} Quizzes</span>
+                                             </div>
+                                         </div>
+
+                                         <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                             <button @click.stop="week.content.push({type:'lecture', title:'New Lecture', duration:'10:00', youtubeId:'', id: Date.now()}); if(!editOpenWeeks.includes(idx)) toggleEditWeek(idx)" class="w-8 h-8 flex items-center justify-center rounded bg-[#111] hover:bg-indigo-600 hover:text-white text-gray-500 transition" title="Quick Add Lecture"><i class="fa-solid fa-video"></i></button>
+                                             <button @click.stop="deleteItem(selectedCourse.weeks, idx, 'Week')" class="w-8 h-8 flex items-center justify-center rounded bg-[#111] hover:bg-red-900/50 hover:text-red-400 text-gray-500 transition"><i class="fa-solid fa-trash"></i></button>
+                                             <i :class="['fa-solid text-gray-600 ml-2 transition-transform duration-300', editOpenWeeks.includes(idx) ? 'fa-chevron-up rotate-180' : 'fa-chevron-down']"></i>
+                                         </div>
+                                     </div>
+
+                                     <!-- Week Content Editor -->
+                                     <div v-if="editOpenWeeks.includes(idx)" class="p-6 border-t border-[#1a1a1a] bg-[#0c0c0c]/50 relative">
+                                        <!-- Vertical Line -->
+                                        <div class="absolute left-[2.5rem] top-0 bottom-0 w-px bg-gradient-to-b from-[#222] to-transparent"></div>
+
+                                         <div class="pl-16 space-y-6">
+                                              <!-- Add Content Bar -->
+                                              <div class="flex gap-2 mb-6">
+                                                  <button @click="week.content.push({type:'lecture', title:'New Lecture', duration:'10:00', youtubeId:'', id: Date.now()})" class="flex-1 bg-[#111] hover:bg-gray-800 text-gray-300 py-3 rounded-lg border border-[#222] border-dashed hover:border-gray-600 transition flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wide">
+                                                      <i class="fa-brands fa-youtube text-red-500"></i> Add Video
+                                                  </button>
+                                                  <button @click="week.content.push({type:'resource', title:'New Resource', resourceType:'url', url:'', content:'', id: Date.now()})" class="flex-1 bg-[#111] hover:bg-gray-800 text-gray-300 py-3 rounded-lg border border-[#222] border-dashed hover:border-gray-600 transition flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wide">
+                                                      <i class="fa-solid fa-link text-emerald-500"></i> Add Resource
+                                                  </button>
+                                                  <button @click="week.content.push({type:'quiz', title:'Practice Quiz', questions:[], id: Date.now()})" class="flex-1 bg-[#111] hover:bg-gray-800 text-gray-300 py-3 rounded-lg border border-[#222] border-dashed hover:border-gray-600 transition flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wide">
+                                                      <i class="fa-solid fa-list-check text-orange-500"></i> Add Quiz
+                                                  </button>
+                                              </div>
+
+                                              <!-- Unified Content List -->
+                                              <div class="space-y-4">
+                                                  <div v-for="(item, ii) in week.content" :key="item.id || ii" class="relative group animate-fade-in">
+                                                      
+                                                      <!-- Lecture Item -->
+                                                      <div v-if="item.type === 'lecture'" class="bg-[#111] p-4 rounded-xl border border-[#222] hover:border-red-900/30 transition shadow-lg relative">
+                                                          <div class="absolute -left-3 top-4 w-1 h-8 bg-red-500/50 rounded-r"></div>
+                                                          <div class="flex gap-4 items-start">
+                                                              <div class="flex flex-col gap-1 text-gray-600 pt-1">
+                                                                  <button @click="moveItem(week.content, ii, -1)" class="hover:text-red-400 text-[10px]"><i class="fa-solid fa-caret-up"></i></button>
+                                                                  <i class="fa-brands fa-youtube text-lg text-red-500"></i>
+                                                                  <button @click="moveItem(week.content, ii, 1)" class="hover:text-red-400 text-[10px]"><i class="fa-solid fa-caret-down"></i></button>
+                                                              </div>
+                                                              <div class="flex-1 space-y-3">
+                                                                  <input v-model="item.title" class="bg-transparent text-sm font-bold text-white w-full focus:outline-none placeholder-gray-600" placeholder="Lecture Title">
+                                                                  <div class="flex gap-3">
+                                                                      <div class="flex-1 bg-[#050505] flex items-center rounded border border-[#222] px-3 py-2 focus-within:border-red-500/50 transition">
+                                                                          <i class="fa-solid fa-link text-gray-600 text-xs mr-3"></i>
+                                                                          <input v-model="item.youtubeId" class="bg-transparent text-xs text-blue-400 w-full focus:outline-none font-mono" placeholder="YouTube Video ID">
+                                                                      </div>
+                                                                      <div class="w-24 bg-[#050505] flex items-center rounded border border-[#222] px-3 py-2">
+                                                                          <i class="fa-regular fa-clock text-gray-600 text-xs mr-2"></i>
+                                                                          <input v-model="item.duration" class="bg-transparent text-xs text-gray-400 w-full focus:outline-none text-center" placeholder="Time">
+                                                                      </div>
+                                                                  </div>
+                                                              </div>
+                                                              <div class="w-32 h-20 bg-black rounded-lg overflow-hidden border border-[#222] relative group/thumb cursor-pointer hover:border-red-500/50 transition" @click="playVideo(item.youtubeId)">
+                                                                  <img v-if="item.youtubeId" :src="getYtThumbnail(item.youtubeId)" class="w-full h-full object-cover opacity-60 group-hover/thumb:opacity-100 transition">
+                                                                  <div class="absolute inset-0 flex items-center justify-center"><i class="fa-solid fa-play text-white opacity-50 group-hover/thumb:opacity-100 transition"></i></div>
+                                                              </div>
+                                                              <button @click="deleteItem(week.content, ii, 'Lecture')" class="text-gray-700 hover:text-red-500 ml-2"><i class="fa-solid fa-times"></i></button>
+                                                          </div>
+                                                      </div>
+
+                                                      <!-- Resource Item -->
+                                                      <div v-else-if="item.type === 'resource'" class="bg-[#111] p-4 rounded-xl border border-[#222] hover:border-emerald-900/30 transition shadow-lg relative">
+                                                          <div class="absolute -left-3 top-4 w-1 h-8 bg-emerald-500/50 rounded-r"></div>
+                                                          <div class="flex gap-4 items-start">
+                                                              <div class="flex flex-col gap-1 text-gray-600 pt-1">
+                                                                  <button @click="moveItem(week.content, ii, -1)" class="hover:text-emerald-400 text-[10px]"><i class="fa-solid fa-caret-up"></i></button>
+                                                                  <i :class="['fa-solid text-lg', item.resourceType === 'markdown' ? 'fa-file-lines text-pink-400' : item.resourceType === 'image' ? 'fa-image text-blue-400' : 'fa-link text-emerald-500']"></i>
+                                                                  <button @click="moveItem(week.content, ii, 1)" class="hover:text-emerald-400 text-[10px]"><i class="fa-solid fa-caret-down"></i></button>
+                                                              </div>
+                                                              <div class="flex-1 space-y-3">
+                                                                  <div class="flex gap-3">
+                                                                       <select v-model="item.resourceType" class="bg-[#050505] border border-[#222] rounded text-[10px] text-gray-400 px-2 py-1 focus:outline-none uppercase font-bold tracking-wider">
+                                                                          <option value="url">Link / PDF</option>
+                                                                          <option value="markdown">Note (MD)</option>
+                                                                          <option value="image">Image</option>
+                                                                      </select>
+                                                                      <input v-model="item.title" class="bg-transparent text-sm font-bold text-white flex-1 focus:outline-none placeholder-gray-600" placeholder="Resource Title">
+                                                                  </div>
+                                                                  
+                                                                  <!-- Resource Inputs -->
+                                                                  <div v-if="item.resourceType === 'url' || item.resourceType === 'pdf'" class="bg-[#050505] rounded border border-[#222] px-3 py-2 flex items-center focus-within:border-emerald-500/50 transition">
+                                                                      <i class="fa-solid fa-globe text-gray-600 text-xs mr-3"></i>
+                                                                      <input v-model="item.url" class="bg-transparent text-xs text-emerald-400 w-full focus:outline-none font-mono" placeholder="https://...">
+                                                                  </div>
+
+                                                                  <div v-if="item.resourceType === 'image'">
+                                                                      <div class="bg-[#050505] rounded border border-[#222] px-3 py-2 flex items-center focus-within:border-blue-500/50 transition mb-2">
+                                                                          <i class="fa-solid fa-image text-gray-600 text-xs mr-3"></i>
+                                                                          <input v-model="item.url" class="bg-transparent text-xs text-blue-400 w-full focus:outline-none font-mono" placeholder="Image URL">
+                                                                      </div>
+                                                                      <img v-if="item.url" :src="item.url" class="h-32 rounded border border-[#222] bg-black object-contain">
+                                                                  </div>
+
+                                                                  <div v-if="item.resourceType === 'markdown'" class="relative">
+                                                                      <textarea v-model="item.content" class="bg-[#050505] w-full h-32 rounded border border-[#222] p-3 text-xs text-gray-300 font-mono focus:border-pink-500/50 focus:outline-none leading-relaxed resize-y" placeholder="# Markdown Note&#10;Write your content here..."></textarea>
+                                                                      <i class="fa-brands fa-markdown absolute bottom-3 right-3 text-gray-700 text-xl"></i>
+                                                                  </div>
+                                                              </div>
+                                                              <button @click="deleteItem(week.content, ii, 'Resource')" class="text-gray-700 hover:text-red-500 ml-2"><i class="fa-solid fa-times"></i></button>
+                                                          </div>
+                                                      </div>
+
+                                                      <!-- Quiz Item -->
+                                                      <div v-else-if="item.type === 'quiz'" class="bg-[#111] border border-[#222] rounded-xl overflow-hidden hover:border-orange-900/30 transition shadow-lg relative">
+                                                          <div class="absolute -left-3 top-4 w-1 h-8 bg-orange-500/50 rounded-r"></div>
+                                                          <div class="p-4 bg-[#151515] border-b border-[#222] flex items-center justify-between">
+                                                              <div class="flex items-center gap-4">
+                                                                  <div class="flex flex-col gap-1 text-gray-600">
+                                                                      <button @click="moveItem(week.content, ii, -1)" class="hover:text-orange-400 text-[10px]"><i class="fa-solid fa-caret-up"></i></button>
+                                                                      <button @click="moveItem(week.content, ii, 1)" class="hover:text-orange-400 text-[10px]"><i class="fa-solid fa-caret-down"></i></button>
+                                                                  </div>
+                                                                  <i class="fa-solid fa-clipboard-list text-orange-500"></i>
+                                                                  <input v-model="item.title" class="bg-transparent text-sm font-bold text-white focus:outline-none placeholder-gray-600" placeholder="Quiz Title">
+                                                                  <span class="text-[10px] bg-orange-900/20 text-orange-300 px-2 py-0.5 rounded border border-orange-900/30">{{ item.questions ? item.questions.length : 0 }} Questions</span>
+                                                              </div>
+                                                              <button @click="deleteItem(week.content, ii, 'Quiz')" class="text-gray-600 hover:text-red-500"><i class="fa-solid fa-times"></i></button>
+                                                          </div>
+                                                          
+                                                          <div class="p-4 bg-[#0a0a0a]">
+                                                              <div class="space-y-4">
+                                                                  <div v-for="(q, k) in item.questions" :key="k" class="pl-4 border-l-2 border-[#222] relative">
+                                                                      <div class="flex justify-between mb-2">
+                                                                          <div class="flex gap-3 items-center w-full">
+                                                                              <span class="text-[10px] font-mono text-gray-600">Q{{k+1}}</span>
+                                                                              <select v-model="q.type" class="bg-[#151515] text-[9px] text-gray-400 uppercase font-bold border border-[#333] rounded px-1 py-0.5">
+                                                                                  <option value="mcq">MCQ</option>
+                                                                                  <option value="msq">MSQ</option>
+                                                                                  <option value="nat">NAT</option>
+                                                                                  <option value="boolean">Bool</option>
+                                                                              </select>
+                                                                              <input v-model="q.text" class="bg-transparent text-xs text-white focus:outline-none flex-1 placeholder-gray-700" placeholder="Question Text...">
+                                                                          </div>
+                                                                           <button @click="item.questions.splice(k, 1)" class="text-gray-700 hover:text-red-400 text-[10px]"><i class="fa-solid fa-trash"></i></button>
+                                                                      </div>
+                                                                      
+                                                                      <!-- Options -->
+                                                                      <div v-if="q.type === 'mcq' || q.type === 'msq'" class="space-y-1 ml-8">
+                                                                          <div v-for="(opt, oi) in q.options" class="flex gap-2 items-center">
+                                                                              <i class="fa-regular fa-circle text-[8px] text-gray-600"></i>
+                                                                              <input v-model="q.options[oi]" class="bg-[#111] text-[10px] text-gray-400 w-full rounded border border-[#222] px-2 py-1 focus:border-gray-600 focus:outline-none" placeholder="Option">
+                                                                              <button @click="q.options.splice(oi, 1)" class="text-gray-800 hover:text-red-500 text-[9px]"><i class="fa-solid fa-times"></i></button>
+                                                                          </div>
+                                                                          <button @click="q.options.push('New Option')" class="text-[9px] text-gray-500 hover:text-white mt-1">+ Add Option</button>
+                                                                      </div>
+                                                                      
+                                                                      <div class="ml-8 mt-2">
+                                                                           <input v-model="q.answer" class="text-[10px] bg-[#111] text-green-500 w-full px-2 py-1 rounded border border-[#222] placeholder-gray-700 focus:border-green-900/50 focus:outline-none" placeholder="Correct Answer">
+                                                                      </div>
+                                                                  </div>
+                                                              </div>
+                                                              <button @click="addQuestion(item)" class="mt-4 w-full py-2 text-[10px] font-bold text-gray-500 bg-[#111] hover:bg-[#151515] hover:text-white rounded border border-[#222] border-dashed transition uppercase tracking-wider">+ Add Question</button>
+                                                          </div>
+                                                      </div>
+
+                                                  </div>
+                                              </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="h-full flex flex-col items-center justify-center text-center p-12 relative z-10">
+                 <div class="w-24 h-24 bg-[#111] rounded-full flex items-center justify-center mb-6 ring-1 ring-[#222]">
+                     <i class="fa-solid fa-layer-group text-4xl text-[#333]"></i>
+                 </div>
+                 <h2 class="text-2xl font-bold text-white mb-2">Select a Course</h2>
+                 <p class="text-gray-500 max-w-md">Browse the catalog on the left to view details, course structure, and edit content.</p>
+            </div>
+        </div>
+
+        <!-- Video Preview Modal -->
+        <div v-if="videoPreviewId" class="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/90 backdrop-blur-sm" @click.self="closeVideo">
+            <div class="bg-[#111] w-[95vw] h-[85vh] rounded-2xl overflow-hidden shadow-2xl relative border border-[#333] flex flex-col">
+                <button @click="closeVideo" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 hover:bg-white hover:text-black text-white flex items-center justify-center transition z-50 text-lg">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+                <div class="flex-1 w-full h-full relative">
+                <iframe 
+                    class="w-full h-full" 
+                    :src="`https://www.youtube.com/embed/${videoPreviewId}?autoplay=1&rel=0`" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="./src/app.js" type="module"></script>
+</body>
+</html>

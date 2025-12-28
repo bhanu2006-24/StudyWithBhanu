@@ -1,0 +1,1395 @@
+[
+  {
+    "id": "f-ma1",
+    "code": "MA1001",
+    "name": "Mathematics for Data Science I",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 3.5,
+    "workload": 3,
+    "tags": [
+      "Math",
+      "Calculus",
+      "Foundation"
+    ],
+    "description": "The starting point for Math in the degree. Covers basic functions, sets, and introductory calculus.",
+    "prerequisites": [],
+    "syllabus": [
+      "Sets, Relations, Functions",
+      "Polynomials & Equations",
+      "Coordinate Geometry",
+      "Limits & Continuity",
+      "Derivatives"
+    ],
+    "resources": [
+      {
+        "title": "3Blue1Brown - Calculus",
+        "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr",
+        "type": "YouTube"
+      },
+      {
+        "title": "Community Notes (GitHub)",
+        "url": "https://github.com/gagneetkaur04/IIT-Madras-BS-Notes/tree/main/Maths_1",
+        "type": "Notes"
+      },
+      {
+        "title": "PYQ Archive (TheOpenNotes)",
+        "url": "https://theopennotes.in/maths-1",
+        "type": "PYQ"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "MathWhiz",
+        "rating": 4,
+        "text": "Focus on the practice assignments.",
+        "date": "Jan 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 15,
+      "a": 20,
+      "b": 25,
+      "c": 20,
+      "d": 10,
+      "f": 10
+    }
+  },
+  {
+    "id": "f-st1",
+    "code": "ST1001",
+    "name": "Statistics for Data Science I",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 3,
+    "workload": 4,
+    "tags": [
+      "Stats",
+      "Probability",
+      "Foundation"
+    ],
+    "description": "Introduction to data description, probability, and distributions.",
+    "prerequisites": [],
+    "syllabus": [
+      "Data Collection",
+      "Probability Basics",
+      "Random Variables",
+      "Distributions"
+    ],
+    "resources": [
+      {
+        "title": "StatQuest - Statistics Fundamentals",
+        "url": "https://www.youtube.com/playlist?list=PLblh5JKOoLUK0FLuzwntyYI10n2Hd7LXw",
+        "type": "YouTube"
+      },
+      {
+        "title": "Community Notes (Stats 1)",
+        "url": "https://github.com/gagneetkaur04/IIT-Madras-BS-Notes/tree/main/Statistics_1",
+        "type": "Notes"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "DataFan",
+        "rating": 5,
+        "text": "Prof. Andrew's lectures are gold.",
+        "date": "Feb 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 20,
+      "a": 25,
+      "b": 25,
+      "c": 15,
+      "d": 10,
+      "f": 5
+    }
+  },
+  {
+    "id": "f-ct",
+    "code": "CS1001",
+    "name": "Computational Thinking",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 3,
+    "workload": 2,
+    "tags": [
+      "Logic",
+      "Algorithms",
+      "Easy"
+    ],
+    "description": "Builds the algorithmic mindset required for programming.",
+    "prerequisites": [],
+    "syllabus": [
+      "Patterns & Logic",
+      "Flowcharts",
+      "Pseudocode",
+      "Graph Theory"
+    ],
+    "resources": [
+      {
+        "title": "Neso Academy - Discrete Math",
+        "url": "https://www.youtube.com/playlist?list=PLBlnK6fEyqRjMH3RoD9GCNod62c9lnpX9",
+        "type": "YouTube"
+      },
+      {
+        "title": "Mock Tests & PYQs",
+        "url": "https://theopennotes.in/computational-thinking",
+        "type": "PYQ"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "LogicMaster",
+        "rating": 4,
+        "text": "Easy S grade if careful.",
+        "date": "Mar 2024"
+      },
+      {
+        "author": "Reviewer",
+        "rating": 3,
+        "text": "It's all about flowcharts and graph theory. The mock tests are exactly like the real exams. Easy S grade if you don't make silly mistakes.",
+        "date": "Jan 2025"
+      }
+    ],
+    "gradeStats": {
+      "s": 30,
+      "a": 30,
+      "b": 20,
+      "c": 15,
+      "d": 3,
+      "f": 2
+    }
+  },
+  {
+    "id": "f-en1",
+    "code": "EN1001",
+    "name": "English I",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 1.5,
+    "workload": 1.5,
+    "tags": [
+      "Language",
+      "Communication"
+    ],
+    "description": "Focuses on basic grammar and comprehension.",
+    "prerequisites": [],
+    "syllabus": [
+      "Grammar",
+      "Vocabulary",
+      "Reading Comprehension"
+    ],
+    "resources": [],
+    "reviews": [
+      {
+        "author": "Reader",
+        "rating": 3,
+        "text": "Good refresher.",
+        "date": "Jan 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 40,
+      "a": 30,
+      "b": 20,
+      "c": 5,
+      "d": 3,
+      "f": 2
+    }
+  },
+  {
+    "id": "f-ma2",
+    "code": "MA1002",
+    "name": "Mathematics for Data Science II",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 5,
+    "workload": 4.5,
+    "tags": [
+      "Linear Algebra",
+      "Vectors",
+      "Hard"
+    ],
+    "description": "Dives deep into Linear Algebra, Matrices, and Vector Spaces.",
+    "prerequisites": [
+      "Math 1"
+    ],
+    "syllabus": [
+      "Linear Equations",
+      "Matrices",
+      "Vector Spaces",
+      "Eigenvalues"
+    ],
+    "resources": [
+      {
+        "title": "IITM - Math 2 Playlist (Official)",
+        "url": "https://www.youtube.com/playlist?list=PL46jM574QzxyK8z7iY6XG2WqQ3jW7Q5oG",
+        "type": "YouTube"
+      },
+      {
+        "title": "3Blue1Brown - Linear Algebra",
+        "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab",
+        "type": "YouTube"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "Survivor",
+        "rating": 5,
+        "text": "Toughest foundation course.",
+        "date": "Apr 2024"
+      },
+      {
+        "author": "Reviewer",
+        "rating": 5,
+        "text": "Do NOT skip week 5 and 6 vectors content. The End Term is 40% Eigenvalues. Practice solving 3x3 matrices by hand for speed.",
+        "date": "Jan 2025"
+      }
+    ],
+    "gradeStats": {
+      "s": 5,
+      "a": 15,
+      "b": 25,
+      "c": 30,
+      "d": 15,
+      "f": 10
+    }
+  },
+  {
+    "id": "f-st2",
+    "code": "ST1002",
+    "name": "Statistics for Data Science II",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 4.5,
+    "workload": 4,
+    "tags": [
+      "Inference",
+      "Hypothesis",
+      "Hard"
+    ],
+    "description": "Advanced stats covering sampling and hypothesis testing.",
+    "prerequisites": [
+      "Stats 1",
+      "Math 1"
+    ],
+    "syllabus": [
+      "Sampling",
+      "Estimation",
+      "Hypothesis Testing",
+      "Linear Regression"
+    ],
+    "resources": [],
+    "reviews": [
+      {
+        "author": "PValue",
+        "rating": 4,
+        "text": "Hypothesis testing is tricky.",
+        "date": "May 2024"
+      },
+      {
+        "author": "Reviewer",
+        "rating": 5,
+        "text": "This is arguably the hardest foundation course. Hypothesis testing concepts are confusing. Watch external YouTube playlists (StatQuest) to survive.",
+        "date": "Jan 2025"
+      }
+    ],
+    "gradeStats": {
+      "s": 8,
+      "a": 15,
+      "b": 25,
+      "c": 25,
+      "d": 15,
+      "f": 12
+    }
+  },
+  {
+    "id": "f-py",
+    "code": "CS1002",
+    "name": "Intro to Python Programming",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 3.5,
+    "workload": 5,
+    "tags": [
+      "Coding",
+      "OPPE",
+      "Essential"
+    ],
+    "description": "Teaches Python from scratch to intermediate level.",
+    "prerequisites": [
+      "CT"
+    ],
+    "syllabus": [
+      "Variables",
+      "Loops",
+      "Functions",
+      "File Handling"
+    ],
+    "resources": [
+      {
+        "title": "Corey Schafer - Python Basics",
+        "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTskkFvfc443Dk1n8kwqXy_t",
+        "type": "YouTube"
+      },
+      {
+        "title": "Programming with Mosh - Python 1H",
+        "url": "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+        "type": "YouTube"
+      },
+      {
+        "title": "OPPE Practice Repository",
+        "url": "https://github.com/bsc-iitm/python-textbook",
+        "type": "Code"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "PyCoder",
+        "rating": 5,
+        "text": "OPPE requires speed.",
+        "date": "Jun 2024"
+      },
+      {
+        "author": "Reviewer",
+        "rating": 4,
+        "text": "The theory is easy, but the OPPE is the real killer. You need to type code fast. Practice on Replit or the OPPE Dojo here every day.",
+        "date": "Jan 2025"
+      }
+    ],
+    "gradeStats": {
+      "s": 15,
+      "a": 25,
+      "b": 30,
+      "c": 20,
+      "d": 5,
+      "f": 5
+    }
+  },
+  {
+    "id": "f-en2",
+    "code": "EN1002",
+    "name": "English II",
+    "level": "Foundation",
+    "credits": 4,
+    "difficulty": 2,
+    "workload": 2,
+    "tags": [
+      "Writing",
+      "Speaking"
+    ],
+    "description": "Focuses on academic writing and critical thinking.",
+    "prerequisites": [
+      "English 1"
+    ],
+    "syllabus": [
+      "Academic Writing",
+      "Critical Reading",
+      "Speaking Skills"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 35,
+      "a": 35,
+      "b": 20,
+      "c": 5,
+      "d": 3,
+      "f": 2
+    }
+  },
+  {
+    "id": "dp-dbms",
+    "code": "CS2001",
+    "name": "DBMS",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.3,
+    "workload": 4,
+    "tags": [
+      "SQL",
+      "Data",
+      "Backend"
+    ],
+    "description": "SQL, Normalization, and Transactions.",
+    "prerequisites": [
+      "Python"
+    ],
+    "syllabus": [
+      "SQL Queries",
+      "Normalization",
+      "Transactions"
+    ],
+    "resources": [
+      {
+        "title": "Gate Smashers - DBMS Playlist",
+        "url": "https://www.youtube.com/playlist?list=PLV8vIYTIdSnZQ4Qgb7jXUMuTxF3P6D7yd",
+        "type": "YouTube"
+      },
+      {
+        "title": "SQL Practice - HackerRank",
+        "url": "https://www.hackerrank.com/domains/sql",
+        "type": "Practice"
+      },
+      {
+        "title": "DBMS Notes & Slides",
+        "url": "https://github.com/Yash-Kavaiya/iitm-diploma/tree/master/DBMS",
+        "type": "Notes"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "DBAdmin",
+        "rating": 5,
+        "text": "SQL is fun.",
+        "date": "Aug 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 12,
+      "a": 20,
+      "b": 30,
+      "c": 25,
+      "d": 10,
+      "f": 3
+    }
+  },
+  {
+    "id": "dp-pdsa",
+    "code": "CS2002",
+    "name": "PDSA",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 4.4,
+    "workload": 4,
+    "tags": [
+      "Algorithms",
+      "Interview",
+      "Hard"
+    ],
+    "description": "Data Structures and Algorithms in Python.",
+    "prerequisites": [
+      "Python"
+    ],
+    "syllabus": [
+      "Complexity",
+      "Sorting",
+      "Graphs",
+      "DP"
+    ],
+    "resources": [
+      {
+        "title": "Abdul Bari - Algorithms Playlist",
+        "url": "https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkf03iYFl-O29szjTrs_O",
+        "type": "YouTube"
+      },
+      {
+        "title": "PDSA LeetCode List",
+        "url": "https://leetcode.com/problem-list/top-interview-questions/",
+        "type": "Practice"
+      },
+      {
+        "title": "PDSA Cheat Sheet",
+        "url": "https://github.com/Yash-Kavaiya/iitm-diploma/tree/master/PDSA",
+        "type": "Notes"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "AlgoGeek",
+        "rating": 5,
+        "text": "Hardest Diploma course.",
+        "date": "Sep 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 8,
+      "a": 15,
+      "b": 25,
+      "c": 30,
+      "d": 15,
+      "f": 7
+    }
+  },
+  {
+    "id": "dp-app1",
+    "code": "CS2003",
+    "name": "App Dev 1",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.2,
+    "workload": 5,
+    "tags": [
+      "Web",
+      "Dev",
+      "Project"
+    ],
+    "description": "HTML, CSS, SQLite, and Flask.",
+    "prerequisites": [
+      "DBMS"
+    ],
+    "syllabus": [
+      "Flask",
+      "SQLAlchemy",
+      "API Basics"
+    ],
+    "resources": [
+      {
+        "title": "The Flask Mega-Tutorial (Miguel Grinberg)",
+        "url": "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world",
+        "type": "Article"
+      },
+      {
+        "title": "Tech With Tim - Flask",
+        "url": "https://www.youtube.com/watch?v=mqhxxeeTbu0",
+        "type": "YouTube"
+      },
+      {
+        "title": "AppDev1 Project Reference",
+        "url": "https://github.com/Yash-Kavaiya/iitm-diploma/tree/master/MAD1",
+        "type": "Code"
+      }
+    ],
+    "reviews": [
+      {
+        "author": "WebDev",
+        "rating": 4,
+        "text": "Project is heavy.",
+        "date": "Oct 2024"
+      }
+    ],
+    "gradeStats": {
+      "s": 20,
+      "a": 30,
+      "b": 30,
+      "c": 15,
+      "d": 5,
+      "f": 0
+    }
+  },
+  {
+    "id": "dp-java",
+    "code": "CS2004",
+    "name": "Java Programming",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.49,
+    "workload": 4.5,
+    "tags": [
+      "OOP",
+      "Enterprise"
+    ],
+    "description": "OOP using Java.",
+    "prerequisites": [
+      "Python"
+    ],
+    "syllabus": [
+      "OOP",
+      "Exception Handling",
+      "Collections"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 10,
+      "a": 20,
+      "b": 30,
+      "c": 25,
+      "d": 10,
+      "f": 5
+    }
+  },
+  {
+    "id": "dp-sc",
+    "code": "SE2001",
+    "name": "System Commands",
+    "level": "Diploma",
+    "credits": 3,
+    "difficulty": 3.57,
+    "workload": 2.5,
+    "tags": [
+      "Linux",
+      "Bash"
+    ],
+    "description": "Linux terminal and scripting.",
+    "prerequisites": [],
+    "syllabus": [
+      "Shell Basics",
+      "Text Processing",
+      "Scripting"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 25,
+      "a": 35,
+      "b": 25,
+      "c": 10,
+      "d": 5,
+      "f": 0
+    }
+  },
+  {
+    "id": "dp-app2",
+    "code": "CS2005",
+    "name": "App Dev 2",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.96,
+    "workload": 5,
+    "tags": [
+      "VueJS",
+      "API"
+    ],
+    "description": "Modern web dev with Vue.js and APIs.",
+    "prerequisites": [
+      "App Dev 1"
+    ],
+    "syllabus": [
+      "Vue.js",
+      "REST APIs",
+      "Redis",
+      "Celery"
+    ],
+    "resources": [
+      {
+        "title": "Traversy Media - Vue.js Crash Course",
+        "url": "https://www.youtube.com/watch?v=qZXt1Aom3Cs",
+        "type": "YouTube"
+      },
+      {
+        "title": "Net Ninja - Vue.js",
+        "url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9hYYGbV60Vq3I2t9k6fD2D",
+        "type": "YouTube"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": {
+      "s": 15,
+      "a": 25,
+      "b": 30,
+      "c": 20,
+      "d": 10,
+      "f": 0
+    }
+  },
+  {
+    "id": "dp-app1p",
+    "code": "CS2003P",
+    "name": "Project: App Dev 1",
+    "level": "Diploma",
+    "credits": 2,
+    "difficulty": 3.63,
+    "workload": 4.5,
+    "tags": [
+      "Project",
+      "Dev"
+    ],
+    "description": "Project for App Dev 1.",
+    "prerequisites": [
+      "App Dev 1"
+    ],
+    "syllabus": [
+      "Implementation",
+      "Viva"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 30,
+      "a": 30,
+      "b": 20,
+      "c": 10,
+      "d": 5,
+      "f": 5
+    }
+  },
+  {
+    "id": "dp-app2p",
+    "code": "CS2005P",
+    "name": "Project: App Dev 2",
+    "level": "Diploma",
+    "credits": 2,
+    "difficulty": 4.18,
+    "workload": 5,
+    "tags": [
+      "Project",
+      "Dev"
+    ],
+    "description": "Project for App Dev 2.",
+    "prerequisites": [
+      "App Dev 2"
+    ],
+    "syllabus": [
+      "Advanced Implementation",
+      "Viva"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 20,
+      "a": 30,
+      "b": 30,
+      "c": 10,
+      "d": 5,
+      "f": 5
+    }
+  },
+  {
+    "id": "ds-mlf",
+    "code": "CS2006",
+    "name": "ML Foundations",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.32,
+    "workload": 3.5,
+    "tags": [
+      "ML",
+      "Math"
+    ],
+    "description": "Mathematical basis for ML.",
+    "prerequisites": [
+      "Math 2",
+      "Stats 2"
+    ],
+    "syllabus": [
+      "Linear Regression",
+      "Gradient Descent",
+      "PCA"
+    ],
+    "resources": [
+      {
+        "title": "Andrew Ng - ML Course (Coursera)",
+        "url": "https://www.coursera.org/learn/machine-learning",
+        "type": "Course"
+      },
+      {
+        "title": "StatQuest - Machine Learning Playlist",
+        "url": "https://www.youtube.com/playlist?list=PLblh5JKOoLUICTaGLRoHQDuF_7q2GfuJF",
+        "type": "YouTube"
+      },
+      {
+        "title": "MLF Notes & Summaries",
+        "url": "https://github.com/bsc-iitm/machine-learning-foundations",
+        "type": "Notes"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": {
+      "s": 10,
+      "a": 20,
+      "b": 30,
+      "c": 25,
+      "d": 10,
+      "f": 5
+    }
+  },
+  {
+    "id": "ds-mlt",
+    "code": "CS2007",
+    "name": "ML Techniques",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 4.21,
+    "workload": 4,
+    "tags": [
+      "ML",
+      "Algorithms"
+    ],
+    "description": "Core ML algorithms.",
+    "prerequisites": [
+      "ML Foundations"
+    ],
+    "syllabus": [
+      "SVM",
+      "Decision Trees",
+      "Clustering"
+    ],
+    "resources": [
+      {
+        "title": "StatQuest - Support Vector Machines",
+        "url": "https://www.youtube.com/watch?v=efR1C6CvhmE",
+        "type": "YouTube"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": {
+      "s": 12,
+      "a": 22,
+      "b": 28,
+      "c": 25,
+      "d": 10,
+      "f": 3
+    }
+  },
+  {
+    "id": "ds-mlp",
+    "code": "CS2008",
+    "name": "ML Practice",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 3.7,
+    "workload": 4.5,
+    "tags": [
+      "Hands-on",
+      "Sklearn"
+    ],
+    "description": "Practical ML with Scikit-Learn.",
+    "prerequisites": [
+      "ML Foundations"
+    ],
+    "syllabus": [
+      "Pipelines",
+      "Hyperparameter Tuning"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 20,
+      "a": 30,
+      "b": 30,
+      "c": 15,
+      "d": 5,
+      "f": 0
+    }
+  },
+  {
+    "id": "ds-mlpp",
+    "code": "CS2008P",
+    "name": "Project: ML Practice",
+    "level": "Diploma",
+    "credits": 2,
+    "difficulty": 3.16,
+    "workload": 4,
+    "tags": [
+      "Project",
+      "ML"
+    ],
+    "description": "Capstone project for ML Practice.",
+    "prerequisites": [
+      "ML Practice"
+    ],
+    "syllabus": [
+      "ML Pipeline",
+      "Viva"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 30,
+      "a": 30,
+      "b": 20,
+      "c": 10,
+      "d": 5,
+      "f": 5
+    }
+  },
+  {
+    "id": "ds-bdm",
+    "code": "MS2001",
+    "name": "Business Data Mgmt",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 2.2,
+    "workload": 2,
+    "tags": [
+      "Business",
+      "Theory"
+    ],
+    "description": "Data in business context.",
+    "prerequisites": [],
+    "syllabus": [
+      "Warehousing",
+      "Governance"
+    ],
+    "resources": [],
+    "reviews": [
+      {
+        "author": "Reviewer",
+        "rating": 4,
+        "text": "Very theoretical. Good for boosting CGPA. Just read the slides and you'll be fine.",
+        "date": "Jan 2025"
+      }
+    ],
+    "gradeStats": {
+      "s": 35,
+      "a": 35,
+      "b": 20,
+      "c": 8,
+      "d": 2,
+      "f": 0
+    }
+  },
+  {
+    "id": "ds-bdmp",
+    "code": "MS2001P",
+    "name": "Project: BDM",
+    "level": "Diploma",
+    "credits": 2,
+    "difficulty": 3.53,
+    "workload": 3,
+    "tags": [
+      "Project",
+      "Business"
+    ],
+    "description": "Project for BDM.",
+    "prerequisites": [
+      "BDM"
+    ],
+    "syllabus": [
+      "Data Modeling",
+      "Viva"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 30,
+      "a": 30,
+      "b": 25,
+      "c": 10,
+      "d": 5,
+      "f": 0
+    }
+  },
+  {
+    "id": "ds-ba",
+    "code": "MS2002",
+    "name": "Business Analytics",
+    "level": "Diploma",
+    "credits": 4,
+    "difficulty": 2.44,
+    "workload": 3,
+    "tags": [
+      "Business",
+      "Stats"
+    ],
+    "description": "Applying stats to business problems.",
+    "prerequisites": [
+      "Stats 1"
+    ],
+    "syllabus": [
+      "Time Series",
+      "Optimization"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 15,
+      "a": 25,
+      "b": 35,
+      "c": 15,
+      "d": 5,
+      "f": 5
+    }
+  },
+  {
+    "id": "ds-tds",
+    "code": "SE2002",
+    "name": "Tools in Data Science",
+    "level": "Diploma",
+    "credits": 3,
+    "difficulty": 2.15,
+    "workload": 3.5,
+    "tags": [
+      "Tools",
+      "Visualization"
+    ],
+    "description": "Hands-on with DS tools.",
+    "prerequisites": [],
+    "syllabus": [
+      "Git",
+      "Docker",
+      "Streamlit"
+    ],
+    "resources": [],
+    "reviews": [],
+    "gradeStats": {
+      "s": 25,
+      "a": 30,
+      "b": 25,
+      "c": 15,
+      "d": 5,
+      "f": 0
+    }
+  },
+  {
+    "id": "bs-se",
+    "code": "BSCS3001",
+    "name": "Software Engineering",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 3.5,
+    "workload": 3,
+    "tags": ["Core", "Theory"],
+    "description": "Software development life cycle, requirements, and design.",
+    "prerequisites": ["App Dev 1"],
+    "syllabus": ["SDLC", "Agile", "UML", "Testing"],
+    "resources": [
+      {
+        "title": "NPTEL - Software Engineering",
+        "url": "https://nptel.ac.in/courses/106105182",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 10, "a": 20, "b": 30, "c": 30, "d": 10, "f": 0 }
+  },
+  {
+    "id": "bs-dl",
+    "code": "BSCS3004",
+    "name": "Deep Learning",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.5,
+    "workload": 5,
+    "tags": ["AI", "Core", "Hard"],
+    "description": "Neural Networks, CNNs, and RNNs.",
+    "prerequisites": ["ML Techniques"],
+    "syllabus": ["Neural Networks", "Backpropagation", "CNN", "RNN"],
+    "resources": [
+      {
+        "title": "Deep Learning Specialization (Andrew Ng)",
+        "url": "https://www.coursera.org/specializations/deep-learning",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 5, "a": 15, "b": 25, "c": 30, "d": 15, "f": 10 }
+  },
+  {
+    "id": "bs-ai",
+    "code": "BSCS3003",
+    "name": "AI: Search Methods",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.2,
+    "workload": 4,
+    "tags": ["AI", "Core"],
+    "description": "Search algorithms, game playing, and CSP.",
+    "prerequisites": ["CT"],
+    "syllabus": ["BFS/DFS", "A*", "Minimax", "Alpha-Beta Pruning"],
+    "resources": [
+      {
+        "title": "UC Berkeley - CS188 Intro to AI",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/fa18/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 10, "a": 20, "b": 30, "c": 25, "d": 10, "f": 5 }
+  },
+  {
+    "id": "bs-llm",
+    "code": "BSDA5004",
+    "name": "Large Language Models",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.8,
+    "workload": 5,
+    "tags": ["GenAI", "New", "Hot"],
+    "description": "Architecture and fine-tuning of LLMs (Transformers, BERT, GPT).",
+    "prerequisites": ["Deep Learning"],
+    "syllabus": ["Transformers", "Attention Mechanism", "Fine-tuning", "RAG"],
+    "resources": [
+      {
+        "title": "Andrej Karpathy - Intro to Large Language Models",
+        "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
+        "type": "YouTube"
+      },
+      {
+        "title": "Hugging Face - NLP Course",
+        "url": "https://huggingface.co/learn/nlp-course",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 5, "a": 10, "b": 20, "c": 30, "d": 20, "f": 15 }
+  },
+  {
+    "id": "bs-genai-math",
+    "code": "BSDA5002",
+    "name": "Math Foundations of GenAI",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.6,
+    "workload": 4,
+    "tags": ["GenAI", "Math"],
+    "description": "Mathematical underpinnings of Generative AI.",
+    "prerequisites": ["Math 2", "Stats 2"],
+    "syllabus": ["High Dim Probability", "Information Theory", "Generative Models"],
+    "resources": [
+      {
+        "title": "MIT 6.002 - Info Theory",
+        "url": "https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-441-information-theory-spring-2016/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 5, "a": 15, "b": 25, "c": 30, "d": 15, "f": 10 }
+  },
+  {
+    "id": "bs-mlops",
+    "code": "BSDA5014",
+    "name": "MLOps",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 3.8,
+    "workload": 4,
+    "tags": ["Engineering", "Deployment"],
+    "description": "Deploying and monitoring ML models in production.",
+    "prerequisites": ["App Dev 2", "ML Practice"],
+    "syllabus": ["CI/CD for ML", "Model Monitoring", "Isolating Dependencies"],
+    "resources": [
+      {
+        "title": "Made With ML - MLOps",
+        "url": "https://madewithml.com/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 15, "a": 25, "b": 30, "c": 20, "d": 5, "f": 5 }
+  },
+  {
+    "id": "bs-adlab",
+    "code": "BSCS4010",
+    "name": "Application Development Lab",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 3.5,
+    "workload": 5,
+    "tags": ["Lab", "Hands-on"],
+    "description": "Intensive lab course for full-stack development.",
+    "prerequisites": ["App Dev 2"],
+    "syllabus": ["Advanced Flask", "Vue.js", "docker-compose"],
+    "resources": [
+      {
+        "title": "Traversy Media - Vue.js",
+        "url": "https://www.youtube.com/watch?v=qZXt1Aom3Cs",
+        "type": "YouTube"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 20, "a": 30, "b": 30, "c": 15, "d": 5, "f": 0 }
+  },
+  {
+    "id": "bs-st",
+    "code": "BSCS3002",
+    "name": "Software Testing",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 3.2,
+    "workload": 3,
+    "tags": ["Testing", "Core"],
+    "description": "Techniques for validating and verifying software.",
+    "prerequisites": [],
+    "syllabus": ["Black Box", "White Box", "Unit Testing", "Integration Testing"],
+    "resources": [
+      {
+        "title": "Software Testing Help - Tutorial",
+        "url": "https://www.softwaretestinghelp.com/",
+        "type": "Article"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 15, "a": 25, "b": 30, "c": 20, "d": 10, "f": 0 }
+  },
+  {
+    "id": "bs-spg",
+    "code": "BSGN3001",
+    "name": "Strategies for Professional Growth",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 1.5,
+    "workload": 2,
+    "tags": ["Soft Skills", "Management"],
+    "description": "Career development, communication, and workplace dynamics.",
+    "prerequisites": [],
+    "syllabus": ["Resume Building", "Interview Skills", "Communication", "Ethics"],
+    "resources": [
+      {
+        "title": "TED Playlist - Career Advice",
+        "url": "https://www.ted.com/playlists/196/career_advice",
+        "type": "Talks"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 40, "a": 30, "b": 20, "c": 5, "d": 5, "f": 0 }
+  },
+  {
+    "id": "bs-rl",
+    "code": "BSDA5007",
+    "name": "Reinforcement Learning",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.9,
+    "workload": 5,
+    "tags": ["AI", "Hard", "Math"],
+    "description": "Agents, environments, and learning from rewards. Core for 'Algorithmic Decision Making' Minor.",
+    "prerequisites": ["Deep Learning"],
+    "syllabus": ["MDPs", "Q-Learning", "Policy Gradients", "Deep RL"],
+    "resources": [
+      {
+        "title": "David Silver - Reinforcement Learning",
+        "url": "https://www.youtube.com/playlist?list=PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ",
+        "type": "YouTube"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 5, "a": 10, "b": 20, "c": 25, "d": 20, "f": 20 }
+  },
+  {
+    "id": "bs-c",
+    "code": "BSCS3005",
+    "name": "Programming in C",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.0,
+    "workload": 4.5,
+    "tags": ["Coding", "System"],
+    "description": "Low-level programming and memory management. Prereq for 'Systems' Minor.",
+    "prerequisites": [],
+    "syllabus": ["Pointers", "Memory Allocation", "Structs", "File I/O"],
+    "resources": [
+      {
+        "title": "CS50 - Introduction to Computer Science",
+        "url": "https://cs50.harvard.edu/x/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 10, "a": 15, "b": 25, "c": 30, "d": 15, "f": 5 }
+  },
+  {
+    "id": "bs-os",
+    "code": "BSCS4022",
+    "name": "Operating Systems",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.7,
+    "workload": 5,
+    "tags": ["Systems", "Core"],
+    "description": "How computers work under the hood.",
+    "prerequisites": ["Computer Systems Design"],
+    "syllabus": ["Processes", "Threads", "Scheduling", "Virtual Memory", "Concurrency"],
+    "resources": [
+      {
+        "title": "OSTEP - Operating Systems Book",
+        "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+        "type": "Book"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 5, "a": 12, "b": 25, "c": 30, "d": 18, "f": 10 }
+  },
+  {
+    "id": "bs-cn",
+    "code": "BSCS4024",
+    "name": "Computer Networks",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.3,
+    "workload": 4,
+    "tags": ["Systems", "Networking"],
+    "description": "The internet, protocols, and layers.",
+    "prerequisites": ["Programming in C"],
+    "syllabus": ["HTTP/DNS", "TCP/UDP", "IP Addressing", "Routing"],
+    "resources": [
+      {
+        "title": "Computer Networking: A Top-Down Approach",
+        "url": "https://gaia.cs.umass.edu/kurose_ross/online_lectures.htm",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 10, "a": 20, "b": 30, "c": 25, "d": 10, "f": 5 }
+  },
+  {
+    "id": "bs-dlcv",
+    "code": "BSDA5006",
+    "name": "Deep Learning for Computer Vision",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.6,
+    "workload": 4.5,
+    "tags": ["AI", "Vision"],
+    "description": "Image processing and understanding using Deep Learning. Part of 'Multimodal AI' Minor.",
+    "prerequisites": [],
+    "syllabus": ["Image Classification", "Object Detection", "Segmentation", "GANs"],
+    "resources": [
+      {
+        "title": "Stanford CS231n - Computer Vision",
+        "url": "http://cs231n.stanford.edu/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 8, "a": 20, "b": 25, "c": 30, "d": 12, "f": 5 }
+  },
+  {
+    "id": "bs-nlp",
+    "code": "BSDA5005",
+    "name": "Intro to NLP",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.4,
+    "workload": 4,
+    "tags": ["AI", "Language"],
+    "description": "Processing natural language data.",
+    "prerequisites": [],
+    "syllabus": ["Text Processing", "Word Embeddings", "RNNs/LSTMs", "Transformers"],
+    "resources": [
+      {
+        "title": "Stanford CS224n - NLP",
+        "url": "https://web.stanford.edu/class/cs224n/",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 10, "a": 22, "b": 28, "c": 25, "d": 10, "f": 5 }
+  },
+  {
+    "id": "bs-bd",
+    "code": "BSDA5001",
+    "name": "Introduction to Big Data",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 3.8,
+    "workload": 4,
+    "tags": ["Data", "Systems"],
+    "description": "Handling massive datasets. Part of 'Cloud Computing for AI' Minor.",
+    "prerequisites": [],
+    "syllabus": ["Hadoop", "Spark", "MapReduce", "NoSQL"],
+    "resources": [
+      {
+        "title": "NPTEL - Big Data Computing",
+        "url": "https://nptel.ac.in/courses/106104189",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 15, "a": 25, "b": 30, "c": 20, "d": 5, "f": 5 }
+  },
+  {
+    "id": "bs-gt",
+    "code": "BSMS4023",
+    "name": "Game Theory and Strategy",
+    "level": "Degree",
+    "credits": 4,
+    "difficulty": 4.2,
+    "workload": 3.5,
+    "tags": ["Math", "Economics"],
+    "description": "Strategic decision making. Part of 'Economics' Minor.",
+    "prerequisites": [],
+    "syllabus": ["Nash Equilibrium", "Prisoner's Dilemma", "Auctions", "Matching"],
+    "resources": [
+      {
+        "title": "Yale - Game Theory",
+        "url": "https://oyc.yale.edu/economics/econ-159",
+        "type": "Course"
+      }
+    ],
+    "reviews": [],
+    "gradeStats": { "s": 12, "a": 18, "b": 25, "c": 30, "d": 10, "f": 5 }
+  }
+]

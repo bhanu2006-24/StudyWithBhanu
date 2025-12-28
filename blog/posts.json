@@ -1,0 +1,123 @@
+[
+  {
+    "id": "handbook-2025-update",
+    "title": "Student Handbook 2026: Massive Updates!",
+    "excerpt": "New Minors (GenAI, Cloud), Alumni Cards, Advanced Certificates, and Re-entry exams. We break down the 70-page changes in the Sep 2025 Student Handbook.",
+    "content": "<h2>1. New 'Minors' Announced</h2><p>The degree level just got exciting! You can now earn specific <strong>Minors</strong> by completing a set of 3 courses. New options include:</p><ul><li><strong>Generative AI:</strong> LLMs + Deep Learning Practice + Math for GenAI.</li><li><strong>Cloud Computing for AI:</strong> DLP + Intro to Big Data + MLOps.</li><li><strong>Algorithmic Decision Making:</strong> RL + Algorithms for DS + Sequential Decision Making.</li></ul><h2>2. The 'Advanced Certificate'</h2><p>Stuck at the Diploma level because of Projects? Good news! If you finish all 6 theory courses but miss the projects, you now get an <strong>Advanced Certificate</strong> (e.g., 'Advanced Certificate in/ Machine Learning and Data Science').</p><h2>3. Alumni Status & Benefits</h2><p>Graduating? You become a full IITM Alumnus! Fees are ₹7080 (paid in installments). Benefits include <strong>Library Access, Gymkhana Membership, Guest House Booking</strong>, and global networking.</p><h2>4. Re-Entry Policy</h2><p>Exited with a Diploma but want to come back? You can! But you must pass 'Re-admission Exams' (Format: End Term).<br><em>Example:</em> To rejoin BS from Diploma DS, you must pass <strong>MLT and MLP</strong> exams.</p><h2>5. OPPE & Grading</h2><p><strong>System Compatibility Test (SCT)</strong> is now strictly MANDATORY. Miss it, and you miss the OPPE. Also, check the new grading formulas—some courses have capped Assignment weightage to 10%.</p>",
+    "author": "Admin",
+    "date": "Sep 20, 2025",
+    "readTime": "6 min read",
+    "tags": [
+      "News",
+      "Policy",
+      "2025"
+    ]
+  },
+  {
+    "id": "0",
+    "title": "Sep 2025 Term Grading Policy: Declassified",
+    "excerpt": "The official grading policy document for Sep 2025 is out! Key highlights: OPPE dates are set, SCT is mandatory, and course-specific grading formulas have been updated. We break down the complex math for you.",
+    "content": "\n      <h2>The Schedule is Out</h2>\n      <p>Mark your calendars! The major exam dates for the Sep 2025 term are confirmed:</p>\n      <ul>\n        <li><strong>Quiz 1:</strong> Oct 26, 2025</li>\n        <li><strong>Quiz 2:</strong> Nov 23, 2025</li>\n        <li><strong>End Term:</strong> Dec 21, 2025</li>\n      </ul>\n      <h2>Important Policy Changes</h2>\n      <p><strong>OPPE Eligibility:</strong> Completing the System Compatibility Test (SCT) is MANDATORY. Do not skip this, or you will be barred from the OPPE.</p>\n      <p><strong>Grading Formulas:</strong> We noticed a shift in weightage for Python and Java. The GA (Graded Assignment) component has been capped at 10%, putting more pressure on the OPPEs. Make sure you practice coding daily.</p>\n    ",
+    "author": "Admin",
+    "date": "Sep 15, 2025",
+    "readTime": "4 min read",
+    "tags": [
+      "News",
+      "Grading",
+      "Crucial"
+    ]
+  },
+  {
+    "id": "placement-2025",
+    "title": "Placement Report 2025: Reality Check",
+    "excerpt": "Is the degree worth it? We analyzed the placement data released by IIC. Average package, top recruiters, and the skills that actually got people hired.",
+    "content": "<p>Data Engineering roles are dominating. 60% of hires were for DE/DA roles.</p>",
+    "author": "Placement_Insider",
+    "date": "Sep 12, 2025",
+    "readTime": "7 min read",
+    "tags": [
+      "Career",
+      "Money"
+    ]
+  },
+  {
+    "id": "stats-guide",
+    "title": "How I Scored an S in Stats 2 (Without Losing My Mind)",
+    "excerpt": "Stats 2 is arguably the hardest foundation course. Here is my week-by-week strategy, the YouTube playlists I watched, and the notes I made.",
+    "content": "<p>Don't rely solely on the portal videos. StatQuest is your savior.</p>",
+    "author": "Topper_Rohan",
+    "date": "Aug 28, 2025",
+    "readTime": "6 min read",
+    "tags": [
+      "Study Guide",
+      "Stats"
+    ]
+  },
+  {
+    "id": "7",
+    "title": "How to Get an Internship as a BS Student",
+    "excerpt": "The IIC (Industry Interaction Cell) helps, but you need to be proactive. Here is a step-by-step guide to building a resume and applying via LinkedIn.",
+    "content": "<p>Build projects. Join clubs. Network on LinkedIn.</p>",
+    "author": "Career_Rep",
+    "date": "Sep 10, 2025",
+    "readTime": "6 min read",
+    "tags": [
+      "Career",
+      "Internship"
+    ]
+  },
+  {
+    "id": "8",
+    "title": "My Journey: From Arts to Data Science",
+    "excerpt": "I had zero math background. 2 years later, I am a Diploma holder with a 9.0 CGPA. Here is how I survived Math 1 and CT.",
+    "content": "<p>Don't give up. Khan Academy is your best friend.</p>",
+    "author": "Student_Story",
+    "date": "Aug 22, 2025",
+    "readTime": "5 min read",
+    "tags": [
+      "Motivation",
+      "Success Story"
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Cracking Python OPPE: Speed is Key",
+    "excerpt": "You know the logic, but can you type it fast enough? Tips to improve typing speed and common syntax errors to avoid.",
+    "content": "Speed is key.",
+    "author": "CodeWizard",
+    "date": "Sep 28, 2024",
+    "readTime": "8 min",
+    "tags": [
+      "Python",
+      "Exam Hack"
+    ]
+  },
+  {
+    "id": "qualifier-101",
+    "title": "Qualifier Exam 101: How to Crack It",
+    "excerpt": "The first hurdle. Here is how to clear the Qualifier Exam with flying colors and zero stress. Focus on the 4 core subjects and manage your time.",
+    "content": "<h2>1. The Four Pillars</h2><p>Math 1, Stats 1, Computational Thinking, and English 1. These are your targets.</p><h2>2. The Secret Sauce</h2><p>Do NOT skip the activity questions. They are often direct indicators of exam questions.</p><h2>3. Mock Tests</h2><p>The mock tests released 1 week before the exam are gold. Solve them in a timed environment.</p><h2>4. Resources</h2><p>Check out <strong>We4AI</strong> and <strong>Let's Learn</strong> for specialized prep material.</p>",
+    "author": "Qualifier_Vet",
+    "date": "Oct 05, 2025",
+    "readTime": "5 min read",
+    "tags": [
+      "Guide",
+      "Qualifier",
+      "New Student"
+    ]
+  },
+  {
+    "id": "community-resources",
+    "title": "Best Community Resources for IITM BS Students",
+    "excerpt": "You are not alone. Discover the vibrant student communities that help you solve clear doubts and stay motivated.",
+    "content": "<p>Studying online can be lonely, but it doesn't have to be.</p><ul><li><strong>Discourse:</strong> The official forum for doubt clearing.</li><li><strong>r/IITM_BS_DataScience:</strong> The unofficial subreddit for memes, rants, and advice.</li><li><strong>Discord Servers:</strong> Live study rooms and peer support.</li></ul>",
+    "author": "Community_Lead",
+    "date": "Oct 10, 2025",
+    "readTime": "4 min read",
+    "tags": [
+      "Community",
+      "Resources",
+      "Social"
+    ]
+  }
+]

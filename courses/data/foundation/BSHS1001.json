@@ -1,0 +1,214 @@
+{
+  "code": "BSHS1001",
+  "name": "English I",
+  "credits": 4,
+  "pre": [],
+  "co": [],
+  "id": "BSHS1001",
+  "level": "foundation",
+  "type": "Theory",
+  "exams": {
+    "q1": true,
+    "q2": true,
+    "et": true
+  },
+  "description": "Builds a strong foundation in English language skills reading, writing, listening and speaking.",
+  "weeks": [
+    {
+      "weekNum": 1,
+      "title": "Sounds & Words",
+      "lectures": [
+        {
+          "title": "Vowel Sounds",
+          "duration": "15:00"
+        },
+        {
+          "title": "Consonant Sounds",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 2,
+      "title": "Parts of Speech",
+      "lectures": [
+        {
+          "title": "Nouns & Pronouns",
+          "duration": "20:00"
+        },
+        {
+          "title": "Verbs & Adjectives",
+          "duration": "20:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 3,
+      "title": "Sentence Structures",
+      "lectures": [
+        {
+          "title": "Phrases & Idioms",
+          "duration": "15:00"
+        },
+        {
+          "title": "Simple, Compound, Complex",
+          "duration": "20:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 4,
+      "title": "Basic Speaking Skills",
+      "lectures": [
+        {
+          "title": "Introductions",
+          "duration": "15:00"
+        },
+        {
+          "title": "Speaking Clearly",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 5,
+      "title": "Tenses",
+      "lectures": [
+        {
+          "title": "Present Tenses",
+          "duration": "20:00"
+        },
+        {
+          "title": "Past & Future",
+          "duration": "20:00"
+        },
+        {
+          "title": "Subject-Verb Agreement",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 6,
+      "title": "Reading Skills",
+      "lectures": [
+        {
+          "title": "Skimming & Scanning",
+          "duration": "15:00"
+        },
+        {
+          "title": "Reading Comprehension",
+          "duration": "25:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 7,
+      "title": "Listening Skills",
+      "lectures": [
+        {
+          "title": "Active Listening",
+          "duration": "20:00"
+        },
+        {
+          "title": "Note Taking",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 8,
+      "title": "Pronunciation",
+      "lectures": [
+        {
+          "title": "Word Stress",
+          "duration": "15:00"
+        },
+        {
+          "title": "Intonation",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 9,
+      "title": "Presentation Skills",
+      "lectures": [
+        {
+          "title": "Structuring a Speech",
+          "duration": "20:00"
+        },
+        {
+          "title": "Group Discussions",
+          "duration": "20:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 10,
+      "title": "Grammar & Common Errors",
+      "lectures": [
+        {
+          "title": "Common Mistakes",
+          "duration": "20:00"
+        },
+        {
+          "title": "Punctuation",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 11,
+      "title": "Writing Basics",
+      "lectures": [
+        {
+          "title": "Paragraph Writing",
+          "duration": "20:00"
+        },
+        {
+          "title": "Essay Structure",
+          "duration": "20:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    },
+    {
+      "weekNum": 12,
+      "title": "Professional Writing",
+      "lectures": [
+        {
+          "title": "Email Etiquette",
+          "duration": "15:00"
+        },
+        {
+          "title": "Formal Letters",
+          "duration": "15:00"
+        }
+      ],
+      "notes": [],
+      "practice": []
+    }
+  ]
+}
