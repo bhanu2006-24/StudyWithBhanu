@@ -8,76 +8,116 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Markdown & LaTeX Support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
         .glass { background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .input-base { background: #111; border: 1px solid #222; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; font-size: 0.875rem; }
         .input-base:focus { border-color: #10b981; }
+        .resource-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .resource-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.2); }
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
 <body class="min-h-screen p-6 relative">
-    <div id="app" class="max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
+    <div id="app" class="max-w-7xl mx-auto pb-20">
+        <header class="flex justify-between items-center mb-10 sticky top-0 bg-[#050505]/90 backdrop-blur-md z-50 py-4 -my-4 px-4 -mx-4">
             <div class="flex items-center gap-3">
-                 <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30"><i class="fa-solid fa-folder-open text-xl"></i></div>
+                 <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30"><i class="fa-solid fa-shapes text-xl"></i></div>
                 <div>
-                    <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Study Resources</h1>
-                    <p class="text-gray-500 text-sm">Organized Material & Links</p>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Resource Hub</h1>
+                    <p class="text-gray-500 text-sm">Media, Docs & LaTeX</p>
                 </div>
             </div>
             <div class="flex gap-3">
-                 <div class="relative">
+                 <div class="relative group">
                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-500 text-xs"></i>
-                    <input v-model="search" class="input-base pl-8 w-64 border-[#333]" placeholder="Search resources...">
+                    <input v-model="search" class="input-base pl-8 w-64 border-[#333] focus:w-80 transition-all" placeholder="Search anything...">
                 </div>
-                <button @click="addCategory" class="px-4 py-2 rounded-lg bg-[#222] hover:bg-[#333] border border-[#333] text-sm text-gray-300 hover:text-white transition">+ Category</button>
+                <button @click="addCategory" class="px-4 py-2 rounded-lg bg-[#222] hover:bg-[#333] border border-[#333] text-sm text-gray-300 hover:text-white transition">+ Section</button>
                 <button @click="saveFile" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/20 transition">Save JSON</button>
             </div>
         </header>
-
-        <div v-if="filteredItems.length === 0 && items.length > 0" class="text-center text-gray-500 py-10">
-            No items match your search.
-        </div>
         
-        <div class="masonry-grid space-y-8">
-            <div v-for="(cat, cIdx) in filteredItems" :key="cIdx" class="glass rounded-2xl p-6 hover:border-emerald-500/30 transition group">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 masonry-grid">
+            <div v-for="(cat, cIdx) in filteredItems" :key="cIdx" class="glass rounded-2xl p-6 hover:border-emerald-500/30 transition group h-fit">
                 <div class="flex justify-between items-center mb-4 border-b border-[#222] pb-2">
-                    <input v-model="cat.name" class="bg-transparent text-xl font-bold text-white outline-none w-full" placeholder="Category Name">
+                    <input v-model="cat.name" class="bg-transparent text-xl font-bold text-white outline-none w-full" placeholder="Section Name">
                     <button @click="deleteCategory(cIdx)" class="text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2"><i class="fa-solid fa-trash"></i></button>
                 </div>
                 
-                <div class="space-y-3">
-                    <div v-for="(item, iIdx) in cat.items" :key="iIdx" class="flex gap-3 items-center bg-[#0a0a0a] p-3 rounded-xl border border-[#222] group/item">
-                        <div class="w-8 h-8 rounded-lg bg-[#151515] flex items-center justify-center text-emerald-500 text-sm shrink-0">
-                            <i :class="getItemIcon(item.type)"></i>
+                <div class="space-y-4">
+                    <div v-for="(item, iIdx) in cat.items" :key="iIdx" class="resource-card bg-[#0a0a0a] p-4 rounded-xl border border-[#222] group/item relative overflow-hidden">
+                        
+                        <!-- Actions -->
+                        <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover/item:opacity-100 transition z-10">
+                            <button @click="item.viewMode = item.viewMode === 'edit' ? 'preview' : 'edit'" class="bg-black/50 hover:bg-emerald-600 text-white p-1.5 rounded text-xs backdrop-blur-md">
+                                <i :class="['fa-solid', item.viewMode === 'edit' ? 'fa-eye' : 'fa-pen']"></i>
+                            </button>
+                            <button @click="cat.items.splice(iIdx, 1)" class="bg-black/50 hover:bg-red-600 text-white p-1.5 rounded text-xs backdrop-blur-md"><i class="fa-solid fa-trash"></i></button>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <input v-model="item.title" class="bg-transparent text-sm font-bold text-gray-200 w-full outline-none placeholder-gray-600 mb-0.5" placeholder="Title">
-                            <input v-model="item.url" class="bg-transparent text-xs text-blue-400 w-full outline-none placeholder-blue-900/50" placeholder="URL">
+
+                        <!-- Header -->
+                        <div class="flex items-center gap-3 mb-3">
+                             <div class="w-8 h-8 rounded-lg bg-[#151515] flex items-center justify-center text-emerald-500 text-sm shrink-0 border border-[#222]">
+                                <i :class="getItemIcon(item.type)"></i>
+                            </div>
+                             <div class="flex-1 min-w-0">
+                                <input v-model="item.title" class="bg-transparent text-sm font-bold text-gray-200 w-full outline-none placeholder-gray-600 mb-0.5" placeholder="Resource Title">
+                                <select v-model="item.type" class="bg-transparent text-[10px] text-gray-500 outline-none uppercase font-bold tracking-wider cursor-pointer hover:text-emerald-400">
+                                    <option value="link">Link</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="video">Video</option>
+                                    <option value="code">Code</option>
+                                    <option value="latex">LaTeX/MD</option>
+                                    <option value="image">Image</option>
+                                </select>
+                            </div>
                         </div>
-                        <select v-model="item.type" class="bg-[#111] text-[10px] text-gray-500 border border-[#222] rounded outline-none w-16">
-                            <option value="pdf">PDF</option>
-                            <option value="link">Link</option>
-                            <option value="video">Video</option>
-                            <option value="doc">Doc</option>
-                        </select>
-                         <button @click="cat.items.splice(iIdx, 1)" class="text-gray-700 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition"><i class="fa-solid fa-times"></i></button>
+
+                        <!-- Content Body -->
+                        <div class="mt-2">
+                            <!-- Link/PDF/Image Inputs -->
+                            <div v-if="['link', 'pdf', 'image', 'video'].includes(item.type)">
+                                <input v-model="item.content" class="bg-[#111] text-xs text-blue-400 w-full p-2 rounded border border-[#222] outline-none focus:border-emerald-500/50 font-mono" placeholder="https://...">
+                                
+                                <!-- Previews -->
+                                <div v-if="item.content && item.viewMode !== 'edit'" class="mt-3 rounded-lg overflow-hidden border border-[#222]">
+                                    <img v-if="item.type === 'image'" :src="item.content" class="w-full h-40 object-cover">
+                                    <iframe v-else-if="item.type === 'video' && item.content.includes('youtube')" :src="getYoutubeEmbed(item.content)" class="w-full aspect-video" frameborder="0" allowfullscreen></iframe>
+                                    <a v-else :href="item.content" target="_blank" class="block bg-[#151515] p-3 text-xs text-gray-400 hover:text-emerald-400 transition flex items-center gap-2">
+                                        <i class="fa-solid fa-external-link-alt"></i> Open Resource
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Text/Code/LaTeX Editors -->
+                            <div v-else class="min-h-[100px]">
+                                <textarea v-if="item.viewMode === 'edit'" v-model="item.content" class="w-full h-32 bg-[#111] border border-[#222] rounded-lg p-3 text-xs font-mono text-gray-300 outline-none resize-y" :placeholder="item.type === 'latex' ? 'Type Markdown or $LaTeX$...' : 'Paste code here...'"></textarea>
+                                
+                                <div v-else class="bg-[#111] rounded-lg p-4 border border-[#222] min-h-[5rem] overflow-x-auto">
+                                     <div v-if="item.type === 'latex'" class="prose prose-invert prose-sm max-w-none" v-html="renderRichText(item.content)"></div>
+                                     <pre v-if="item.type === 'code'" class="text-xs font-mono text-gray-300"><code>{{ item.content }}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 
-                <button @click="cat.items.push({title:'', url:'', type:'link'})" class="w-full mt-4 py-2 border border-dashed border-[#333] rounded-lg text-xs text-gray-500 hover:text-white hover:border-emerald-500/50 transition uppercase font-bold tracking-wide">+ Add Resource</button>
+                <button @click="addItem(cat)" class="w-full mt-4 py-3 border border-dashed border-[#333] rounded-xl text-xs text-gray-500 hover:text-white hover:border-emerald-500/50 transition uppercase font-bold tracking-wide flex items-center justify-center gap-2 group/btn">
+                    <span class="group-hover/btn:scale-110 transition duration-300 text-lg">+</span> Add Item
+                </button>
             </div>
         </div>
         
-         <div v-if="items.length === 0" class="text-center text-gray-600 py-20">
-            <i class="fa-solid fa-box-open text-4xl mb-4 opacity-30"></i>
-            <p>No resources yet. Add a category to start!</p>
-            <button @click="addCategory" class="mt-4 px-6 py-2 bg-[#1a1a1a] rounded-lg text-sm text-emerald-500 border border-emerald-900/30">Create Category</button>
-        </div>
-
         <!-- Notification -->
         <div v-if="notification" class="fixed top-6 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-fade-in">
             <span class="text-emerald-400">✓</span> {{ notification }}
@@ -89,7 +129,7 @@
         createApp({
             data() {
                 return {
-                    items: [], // Array of Categories { name: 'Math', items: [] }
+                    items: [], // { name: 'Math', items: [{ title, type, content, viewMode }] }
                     search: '',
                     notification: null
                 }
@@ -98,44 +138,86 @@
                 filteredItems() {
                     const q = this.search.toLowerCase();
                     if(!q) return this.items;
-                    // Filter categories or items within categories
                     return this.items.filter(cat => 
                         cat.name.toLowerCase().includes(q) || 
                         cat.items.some(i => i.title.toLowerCase().includes(q))
                     );
                 }
             },
-            mounted() { this.loadFile(); },
+            mounted() { 
+                this.loadFile();
+            },
             methods: {
                 async loadFile() {
                     try {
                         const res = await fetch('./items.json');
-                        if (res.ok) this.items = await res.json();
-                        if(!Array.isArray(this.items)) this.items = []; // Handle reset
+                        if (res.ok) {
+                            let data = await res.json();
+                            // Normalize data
+                            this.items = data.map(c => ({
+                                ...c,
+                                items: c.items.map(i => ({ ...i, viewMode: 'preview' })) // Default to preview
+                            }));
+                        }
                     } catch (e) { this.items = []; }
+                    this.$nextTick(() => this.renderMath());
                 },
                 addCategory() {
-                    this.items.push({ name: 'New Section', items: [] });
+                    this.items.unshift({ name: 'New Section', items: [] });
+                },
+                addItem(cat) {
+                    cat.items.push({ title: '', type: 'link', content: '', viewMode: 'edit' });
                 },
                 deleteCategory(idx) {
-                    if(confirm("Delete this category?")) this.items.splice(idx, 1);
+                    if(confirm("Delete this section?")) this.items.splice(idx, 1);
                 },
                 getItemIcon(type) {
-                    if(type === 'pdf') return 'fa-solid fa-file-pdf';
-                    if(type === 'video') return 'fa-solid fa-play-circle';
-                    if(type === 'doc') return 'fa-solid fa-file-word';
-                    return 'fa-solid fa-link';
+                    const icons = {
+                        pdf: 'fa-solid fa-file-pdf',
+                        video: 'fa-solid fa-play',
+                        code: 'fa-solid fa-code',
+                        latex: 'fa-solid fa-square-root-variable',
+                        image: 'fa-solid fa-image',
+                        link: 'fa-solid fa-link'
+                    };
+                    return icons[type] || 'fa-solid fa-file';
+                },
+                getYoutubeEmbed(url) {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                    const match = url.match(regExp);
+                    return (match && match[2].length === 11) ? 'https://www.youtube.com/embed/' + match[2] : url;
+                },
+                renderRichText(text) {
+                    // 1. Render Markdown
+                    let html = marked.parse(text || '');
+                    // 2. We defer KaTeX to nextTick/after update usually, but auto-render extension handles DOM scan.
+                    // For inline reactivity, explicit parse might be better, but we'll trigger renderMath
+                    setTimeout(() => this.renderMath(), 50);
+                    return html; 
+                },
+                renderMath() {
+                     renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
                 },
                 async saveFile() {
                     try {
+                        const dataToSave = this.items.map(c => ({
+                            ...c,
+                            items: c.items.map(({viewMode, ...rest}) => rest) // Strip UI state
+                        }));
+
                         if (window.showSaveFilePicker) {
                             const handle = await window.showSaveFilePicker({ suggestedName: 'items.json' });
                             const writable = await handle.createWritable();
-                            await writable.write(JSON.stringify(this.items, null, 2));
+                            await writable.write(JSON.stringify(dataToSave, null, 2));
                             await writable.close();
                             this.showNotification('Saved to items.json');
                         } else {
-                            const blob = new Blob([JSON.stringify(this.items, null, 2)], {type: 'application/json'});
+                            const blob = new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'});
                             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'items.json'; a.click();
                             this.showNotification('Downloaded items.json');
                         }

@@ -15,49 +15,57 @@
         .input-base { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; }
         .input-base:focus { border-color: #ec4899; }
         
-        .day-cell { min-height: 100px; transition: 0.2s; border: 1px solid #222; background: #0a0a0a; position: relative; }
-        .day-cell:hover { background: #111; }
+        .day-cell { min-height: 120px; transition: 0.2s; border: 1px solid #1a1a1a; background: #0a0a0a; position: relative; }
+        .day-cell:hover { background: #111; z-index: 10; border-color: #333; }
         .event-chip { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .event-chip:hover { transform: scale(1.02); }
+        .event-chip:hover { transform: scale(1.02); z-index: 20; }
+        .today-badge { width: 24px; height: 24px; background: #ec4899; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
     </style>
 </head>
 <body class="min-h-screen p-6 relative overflow-hidden">
-    <div id="app" class="max-w-7xl mx-auto h-screen flex flex-col pb-4">
+    <div id="app" class="max-w-[1600px] mx-auto h-screen flex flex-col pb-4">
         <header class="flex justify-between items-center mb-6 shrink-0">
              <div class="flex items-center gap-3">
                  <div class="w-10 h-10 rounded-lg bg-pink-600 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-days text-lg"></i></div>
                 <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent">Calendar</h1>
-                    <p class="text-gray-500 text-xs">Academic & Personal Events</p>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent">Academic Calendar</h1>
                 </div>
             </div>
             <div class="flex items-center gap-4">
                  <div class="flex items-center bg-[#1a1a1a] rounded-lg p-1 border border-[#333]">
                      <button @click="changeMonth(-1)" class="w-8 h-8 rounded hover:bg-[#333] text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left"></i></button>
-                     <span class="px-4 font-bold text-sm w-32 text-center">{{ currentMonthName }} {{ currentYear }}</span>
+                     <span class="px-4 font-bold text-sm w-40 text-center text-white">{{ currentMonthName }} {{ currentYear }}</span>
                      <button @click="changeMonth(1)" class="w-8 h-8 rounded hover:bg-[#333] text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right"></i></button>
                  </div>
-                <button @click="loadFile" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm">Reload</button>
-                <button @click="saveFile" class="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-sm font-bold shadow-lg shadow-pink-500/20">Save JSON</button>
+                 <button @click="jumpToToday" class="px-3 py-1.5 rounded bg-[#222] border border-[#333] text-xs text-gray-300 hover:text-white transition">Today</button>
+                <div class="h-6 w-px bg-[#333]"></div>
+                <button @click="saveFile" class="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-sm font-bold shadow-lg shadow-pink-500/20 text-white transition">Save JSON</button>
             </div>
         </header>
 
         <div class="flex-1 flex gap-6 overflow-hidden">
             <!-- Calendar Grid -->
-            <div class="flex-1 overflow-y-auto bg-[#0a0a0a] border border-[#222] rounded-xl flex flex-col">
+            <div class="flex-1 overflow-y-auto bg-[#0a0a0a] border border-[#222] rounded-xl flex flex-col shadow-2xl">
                 <!-- Days Header -->
                 <div class="grid grid-cols-7 border-b border-[#222] bg-[#111]">
-                    <div v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" class="p-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">{{ d }}</div>
+                    <div v-for="d in ['SUN','MON','TUE','WED','THU','FRI','SAT']" class="p-3 text-center text-[10px] font-bold text-gray-500 tracking-widest">{{ d }}</div>
                 </div>
                 <!-- Days Grid -->
                 <div class="flex-1 grid grid-cols-7 auto-rows-fr">
                     <div v-for="(day, idx) in days" :key="idx" 
-                        :class="['day-cell p-2 flex flex-col gap-1', !day.isCurrentMonth ? 'opacity-30 bg-[#050505]' : '']"
-                        @click="selectDate(day.dateStr)">
-                        <div class="text-xs font-mono text-gray-500 mb-1" :class="{'text-pink-500 font-bold': isToday(day.dateStr)}">{{ day.dayNum }}</div>
+                        :class="['day-cell p-2 flex flex-col gap-1', !day.isCurrentMonth ? 'opacity-30 bg-[#050505]' : '', isToday(day.dateStr) ? 'bg-pink-900/10' : '']"
+                        @click="selectDate(day.dateStr)"
+                        @dblclick="selectDate(day.dateStr); isNew=true;">
+                        
+                        <div class="flex justify-between items-start">
+                            <div class="text-xs font-mono text-gray-500 mb-1" :class="{'today-badge': isToday(day.dateStr)}">{{ day.dayNum }}</div>
+                        </div>
+
+                        <!-- Events -->
                         <div v-for="evt in getEvents(day.dateStr)" :key="evt.id" 
                             @click.stop="openEvent(evt)"
-                            :class="['event-chip border', getCategoryColor(evt.category)]">
+                            :class="['event-chip border flex items-center gap-1', getCategoryColor(evt.category)]">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="getCategoryDot(evt.category)"></span>
                             {{ evt.title }}
                         </div>
                     </div>
@@ -67,51 +75,58 @@
 
         <!-- Event Modal -->
         <div v-if="editingEvent" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div class="bg-[#111] border border-[#333] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-[#111] border border-[#333] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] relative">
+                <!-- Color bar -->
+                <div class="h-1.5 w-full" :class="getCategoryBg(editingEvent.category)"></div>
+
                 <div class="p-6 border-b border-[#222] bg-[#151515] flex justify-between items-center">
-                    <h3 class="font-bold text-white text-lg">{{ isNew ? 'New Event' : 'Edit Event' }}</h3>
+                    <div class="flex items-center gap-3">
+                         <h3 class="font-bold text-white text-lg">{{ isNew ? 'Add Event' : 'Event Details' }}</h3>
+                         <span v-if="!isNew" class="text-xs text-gray-500 font-mono">{{ formatDateLong(editingEvent.date) }}</span>
+                    </div>
                      <div class="flex gap-2">
-                        <button v-if="!isNew" @click="deleteEvent" class="text-red-500 hover:bg-red-900/20 px-3 py-1 rounded text-xs transition">Delete</button>
-                        <button @click="editingEvent = null" class="text-gray-400 hover:text-white px-3 py-1">Close</button>
+                        <button v-if="!isNew" @click="deleteEvent" class="text-gray-500 hover:text-red-500 px-3 py-1 rounded hover:bg-[#222] transition"><i class="fa-solid fa-trash"></i></button>
+                        <button @click="editingEvent = null" class="text-gray-400 hover:text-white px-3 py-1"><i class="fa-solid fa-times"></i></button>
                      </div>
                 </div>
                 
-                <div class="p-6 overflow-y-auto space-y-4">
+                <div class="p-6 overflow-y-auto space-y-5">
+                     <div>
+                         <input v-model="editingEvent.title" class="bg-transparent text-2xl font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Event Title">
+                     </div>
+
                      <div class="grid grid-cols-2 gap-4">
-                         <div class="col-span-2">
-                             <label class="text-xs text-gray-500 block mb-1">Title</label>
-                             <input v-model="editingEvent.title" class="input-base text-lg font-bold" placeholder="Event Name">
+                         <div>
+                             <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Date</label>
+                             <input type="date" v-model="editingEvent.date" class="input-base text-gray-300">
                          </div>
                          <div>
-                             <label class="text-xs text-gray-500 block mb-1">Date</label>
-                             <input type="date" v-model="editingEvent.date" class="input-base text-gray-400">
-                         </div>
-                         <div>
-                             <label class="text-xs text-gray-500 block mb-1">Category</label>
-                             <select v-model="editingEvent.category" class="input-base">
-                                 <option value="exam">Exam</option>
-                                 <option value="class">Class</option>
-                                 <option value="deadline">Deadline</option>
-                                 <option value="personal">Personal</option>
-                             </select>
+                             <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Category</label>
+                             <div class="flex gap-2">
+                                 <button v-for="cat in ['exam', 'class', 'deadline', 'personal']" :key="cat" 
+                                    @click="editingEvent.category = cat"
+                                    :class="['px-3 py-1.5 rounded text-xs capitalize transition border', editingEvent.category === cat ? 'border-white text-white' : 'border-[#333] text-gray-500 hover:border-gray-500']">
+                                    {{ cat }}
+                                 </button>
+                             </div>
                          </div>
                      </div>
                      
                      <div class="flex flex-col h-64">
                          <div class="flex justify-between items-end mb-2">
-                            <label class="text-xs text-gray-500 uppercase font-bold">Details (Markdown)</label>
-                            <div class="flex bg-[#0a0a0a] border border-[#333] rounded p-1">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase">Description & Notes (Markdown)</label>
+                            <div class="flex bg-[#0a0a0a] border border-[#333] rounded p-0.5">
                                 <button @click="viewMode='edit'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='edit'?'bg-[#222] text-white':'text-gray-500']">Edit</button>
                                 <button @click="viewMode='preview'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='preview'?'bg-[#222] text-white':'text-gray-500']">Preview</button>
                             </div>
                          </div>
-                         <textarea v-if="viewMode==='edit'" v-model="editingEvent.details" class="flex-1 input-base resize-none font-mono text-sm leading-relaxed" placeholder="Event details..."></textarea>
-                         <div v-else class="flex-1 bg-[#0a0a0a] border border-[#333] rounded p-4 prose prose-invert prose-sm overflow-y-auto" v-html="renderMd(editingEvent.details)"></div>
+                         <textarea v-if="viewMode==='edit'" v-model="editingEvent.details" class="flex-1 input-base resize-none font-mono text-sm leading-relaxed" placeholder="Type details, links, or notes..."></textarea>
+                         <div v-else class="flex-1 bg-[#0a0a0a] border border-[#333] rounded-lg p-4 prose prose-invert prose-sm overflow-y-auto" v-html="renderMd(editingEvent.details)"></div>
                      </div>
                 </div>
 
                 <div class="p-4 border-t border-[#222] bg-[#151515] flex justify-end">
-                    <button @click="saveEvent" class="px-6 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded-lg font-bold shadow-lg shadow-pink-900/40">Save Event</button>
+                    <button @click="saveEvent" class="px-8 py-2.5 bg-white hover:bg-gray-200 text-black rounded-lg font-bold transition">Save</button>
                 </div>
             </div>
         </div>
@@ -144,16 +159,13 @@
                     const firstDay = new Date(year, month, 1);
                     const lastDay = new Date(year, month + 1, 0);
                     const daysInMonth = lastDay.getDate();
-                    const startingDay = firstDay.getDay(); // 0 = Sun
+                    const startingDay = firstDay.getDay(); 
                     
                     const res = [];
-                    // Prev Month padding
                     const prevMonthLastDay = new Date(year, month, 0).getDate();
                     for (let i = startingDay - 1; i >= 0; i--) {
-                        res.push({ dayNum: prevMonthLastDay - i, isCurrentMonth: false, dateStr: '' }); // Simplified dateStr logic for padding not handled here for simplicity in this snippet, can improve
+                        res.push({ dayNum: prevMonthLastDay - i, isCurrentMonth: false, dateStr: '' }); 
                     }
-                    
-                    // Current Month
                     for (let i = 1; i <= daysInMonth; i++) {
                         const d = new Date(year, month, i);
                         const m = (month + 1).toString().padStart(2, '0');
@@ -173,34 +185,49 @@
                     } catch (e) { this.events = []; }
                 },
                 changeMonth(delta) { this.currentDate = new Date(this.currentYear, this.currentMonth + delta, 1); },
-                getEvents(dateStr) { return this.events.filter(e => e.date === dateStr); },
+                jumpToToday() { this.currentDate = new Date(); },
+                getEvents(dateStr) { if(!dateStr) return []; return this.events.filter(e => e.date === dateStr); },
                 isToday(dateStr) { 
-                    const today = new Date();
-                    const y = today.getFullYear();
-                    const m = (today.getMonth()+1).toString().padStart(2,'0');
-                    const d = today.getDate().toString().padStart(2,'0');
-                    return dateStr === `${y}-${m}-${d}`;
+                     if(!dateStr) return false;
+                     const t = new Date();
+                     return dateStr === `${t.getFullYear()}-${(t.getMonth()+1).toString().padStart(2,'0')}-${t.getDate().toString().padStart(2,'0')}`;
                 },
                 getCategoryColor(cat) {
-                    if(cat === 'exam') return 'bg-red-900/30 text-red-300 border-red-500/50';
-                    if(cat === 'deadline') return 'bg-orange-900/30 text-orange-300 border-orange-500/50';
-                    if(cat === 'class') return 'bg-blue-900/30 text-blue-300 border-blue-500/50';
-                    return 'bg-gray-800 text-gray-300 border-gray-600';
+                    if(cat === 'exam') return 'bg-red-900/30 text-red-200 border-red-500/30 hover:border-red-500';
+                    if(cat === 'deadline') return 'bg-orange-900/30 text-orange-200 border-orange-500/30 hover:border-orange-500';
+                    if(cat === 'class') return 'bg-blue-900/30 text-blue-200 border-blue-500/30 hover:border-blue-500';
+                    return 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-400';
+                },
+                getCategoryDot(cat) {
+                    if(cat === 'exam') return 'bg-red-500';
+                    if(cat === 'deadline') return 'bg-orange-500';
+                    if(cat === 'class') return 'bg-blue-500';
+                    return 'bg-gray-500';
+                },
+                getCategoryBg(cat) {
+                    if(cat === 'exam') return 'bg-red-600';
+                    if(cat === 'deadline') return 'bg-orange-600';
+                    if(cat === 'class') return 'bg-blue-600';
+                    return 'bg-gray-600';
                 },
                 selectDate(dateStr) {
                     if(!dateStr) return;
-                    this.isNew = true;
-                    this.editingEvent = { id: Date.now().toString(), title: '', date: dateStr, category: 'personal', details: '' };
-                    this.viewMode = 'edit';
+                    // If no event on this date in quick mode, maybe open new
                 },
                 openEvent(evt) {
                     this.isNew = false;
                     this.editingEvent = JSON.parse(JSON.stringify(evt));
-                    this.viewMode = 'preview'; // Default to preview for viewing
+                    this.viewMode = 'preview'; 
+                },
+                formatDateLong(d) {
+                    if(!d) return '';
+                    return new Date(d).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 },
                 saveEvent() {
-                    if(this.isNew) this.events.push(this.editingEvent);
-                    else {
+                    if(this.isNew) {
+                         if(!this.editingEvent.title) this.editingEvent.title = 'Untitled Event';
+                         this.events.push(this.editingEvent);
+                    } else {
                         const idx = this.events.findIndex(e => e.id === this.editingEvent.id);
                         if(idx !== -1) this.events[idx] = this.editingEvent;
                     }
@@ -220,15 +247,21 @@
                             const writable = await handle.createWritable();
                             await writable.write(JSON.stringify(this.events, null, 2));
                             await writable.close();
-                            this.showNotification('Saved to events.json');
+                            this.showNotification('Calendar Saved');
                         } else {
                              const blob = new Blob([JSON.stringify(this.events, null, 2)], {type: 'application/json'});
                              const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'events.json'; a.click();
-                             this.showNotification('Downloaded events.json');
+                             this.showNotification('Calendar Downloaded');
                         }
                     } catch (err) { console.error(err); }
                 },
                 showNotification(msg) { this.notification = msg; setTimeout(() => this.notification = null, 3000); }
+            },
+            watch: {
+                // simple hack to trigger selectDate for new events via dblclick logic inside template
+                'editingEvent': function(val) {
+                    // if val is null, closed.
+                }
             }
         }).mount('#app');
     </script>
