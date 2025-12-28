@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar | Student Community</title>
+    <title>Planner | Student Community</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,26 +15,41 @@
         .input-base { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; }
         .input-base:focus { border-color: #ec4899; }
         
-        .day-cell { min-height: 120px; transition: 0.2s; border: 1px solid #1a1a1a; background: #0a0a0a; position: relative; }
-        .day-cell:hover { background: #111; z-index: 10; border-color: #333; }
-        .event-chip { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .day-cell { min-height: 100px; transition: 0.2s; border: 1px solid #1a1a1a; background: #0a0a0a; position: relative; }
+        .day-cell:hover { background: #111; border-color: #333; }
+        .day-cell.active { border-color: #ec4899; background: #1a1115; }
+        
+        .event-chip { font-size: 0.7rem; padding: 1px 4px; border-radius: 4px; margin-bottom: 2px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .event-chip:hover { transform: scale(1.02); z-index: 20; }
-        .today-badge { width: 24px; height: 24px; background: #ec4899; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        
+        /* Timeline */
+        .time-slot { height: 60px; border-bottom: 1px solid #1a1a1a; position: relative; }
+        .time-label { position: absolute; top: -10px; left: 0; font-size: 0.7rem; color: #555; width: 40px; text-align: right; padding-right: 8px; }
+        .timeline-event { position: absolute; left: 50px; right: 10px; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; overflow: hidden; border-left: 3px solid rgba(255,255,255,0.3); transition: 0.2s; z-index: 10; }
+        .timeline-event:hover { z-index: 20; transform: scale(1.01); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen p-6 relative overflow-hidden">
-    <div id="app" class="max-w-[1600px] mx-auto h-screen flex flex-col pb-4">
-        <header class="flex justify-between items-center mb-6 shrink-0">
+<body class="min-h-screen p-4 md:p-6 relative overflow-hidden flex flex-col h-screen">
+    <div id="app" class="max-w-[1800px] mx-auto w-full h-full flex flex-col">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-4 shrink-0 px-2">
              <div class="flex items-center gap-3">
-                 <div class="w-10 h-10 rounded-lg bg-pink-600 flex items-center justify-center text-white"><i class="fa-solid fa-calendar-days text-lg"></i></div>
+                 <div class="w-10 h-10 rounded-lg bg-pink-600 flex items-center justify-center text-white shadow-lg shadow-pink-500/30"><i class="fa-solid fa-calendar-days text-lg"></i></div>
                 <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent">Academic Calendar</h1>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent">Daily Planner</h1>
+                    <p class="text-xs text-gray-500">Master Your Schedule</p>
                 </div>
             </div>
+            
             <div class="flex items-center gap-4">
-                 <div class="flex items-center bg-[#1a1a1a] rounded-lg p-1 border border-[#333]">
+                 <div class="flex bg-[#1a1a1a] rounded-lg p-1 border border-[#333]">
                      <button @click="changeMonth(-1)" class="w-8 h-8 rounded hover:bg-[#333] text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-left"></i></button>
-                     <span class="px-4 font-bold text-sm w-40 text-center text-white">{{ currentMonthName }} {{ currentYear }}</span>
+                     <span class="px-4 font-bold text-sm w-32 text-center text-white flex items-center justify-center">{{ currentMonthName }}</span>
                      <button @click="changeMonth(1)" class="w-8 h-8 rounded hover:bg-[#333] text-gray-400 hover:text-white"><i class="fa-solid fa-chevron-right"></i></button>
                  </div>
                  <button @click="jumpToToday" class="px-3 py-1.5 rounded bg-[#222] border border-[#333] text-xs text-gray-300 hover:text-white transition">Today</button>
@@ -43,31 +58,68 @@
             </div>
         </header>
 
+        <!-- Main Layout -->
         <div class="flex-1 flex gap-6 overflow-hidden">
-            <!-- Calendar Grid -->
-            <div class="flex-1 overflow-y-auto bg-[#0a0a0a] border border-[#222] rounded-xl flex flex-col shadow-2xl">
-                <!-- Days Header -->
+            
+            <!-- Left: Calendar Grid -->
+            <div class="flex-1 flex flex-col bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl">
                 <div class="grid grid-cols-7 border-b border-[#222] bg-[#111]">
-                    <div v-for="d in ['SUN','MON','TUE','WED','THU','FRI','SAT']" class="p-3 text-center text-[10px] font-bold text-gray-500 tracking-widest">{{ d }}</div>
+                    <div v-for="d in ['SUN','MON','TUE','WED','THU','FRI','SAT']" class="py-2 text-center text-[10px] font-bold text-gray-500 tracking-widest">{{ d }}</div>
                 </div>
-                <!-- Days Grid -->
                 <div class="flex-1 grid grid-cols-7 auto-rows-fr">
                     <div v-for="(day, idx) in days" :key="idx" 
-                        :class="['day-cell p-2 flex flex-col gap-1', !day.isCurrentMonth ? 'opacity-30 bg-[#050505]' : '', isToday(day.dateStr) ? 'bg-pink-900/10' : '']"
-                        @click="selectDate(day.dateStr)"
-                        @dblclick="selectDate(day.dateStr); isNew=true;">
+                        :class="['day-cell p-1 flex flex-col gap-1 cursor-pointer', 
+                            !day.isCurrentMonth ? 'opacity-30 bg-[#050505]' : '', 
+                            selectedDateStr === day.dateStr ? 'active ring-1 ring-pink-500 inset-0 z-10' : '']"
+                        @click="selectDate(day.dateStr)">
                         
-                        <div class="flex justify-between items-start">
-                            <div class="text-xs font-mono text-gray-500 mb-1" :class="{'today-badge': isToday(day.dateStr)}">{{ day.dayNum }}</div>
+                        <div class="flex justify-between items-center px-1">
+                            <span :class="['text-xs font-mono', isToday(day.dateStr) ? 'bg-pink-500 text-white w-5 h-5 flex items-center justify-center rounded-full' : 'text-gray-500']">
+                                {{ day.dayNum }}
+                            </span>
+                            <span v-if="getEvents(day.dateStr).length > 0" class="text-[8px] text-gray-600 font-bold">{{ getEvents(day.dateStr).length }}</span>
                         </div>
 
-                        <!-- Events -->
-                        <div v-for="evt in getEvents(day.dateStr)" :key="evt.id" 
-                            @click.stop="openEvent(evt)"
-                            :class="['event-chip border flex items-center gap-1', getCategoryColor(evt.category)]">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="getCategoryDot(evt.category)"></span>
-                            {{ evt.title }}
+                        <!-- Mini Dots for events -->
+                        <div class="flex flex-wrap gap-1 px-1">
+                             <div v-for="evt in getEvents(day.dateStr).slice(0, 4)" :key="evt.id" 
+                                class="w-1.5 h-1.5 rounded-full" :class="getCategoryDot(evt.category)"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Daily Timeline -->
+            <div class="w-[400px] flex flex-col bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl relative">
+                <!-- Timeline Header -->
+                <div class="p-4 border-b border-[#222] bg-[#111] flex justify-between items-center shrink-0">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">{{ getFormattedSelectedDate() }}</h2>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">{{ getDayOfWeek(selectedDateStr) }}</p>
+                    </div>
+                    <button @click="newEvent" class="w-8 h-8 rounded-full bg-pink-600 hover:bg-pink-500 text-white flex items-center justify-center shadow-lg transition"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                
+                <!-- Timeline Scroll Area -->
+                <div class="flex-1 overflow-y-auto relative custom-scroll" ref="timelineScroll">
+                    <!-- Current Time Line -->
+                    <div v-if="isToday(selectedDateStr)" class="absolute left-0 right-0 border-t-2 border-red-500 z-30 pointer-events-none" :style="{ top: getCurrentTimePos() + 'px' }">
+                        <div class="absolute -top-2.5 left-0 bg-red-500 text-white text-[9px] px-1 rounded font-bold">Now</div>
+                    </div>
+
+                    <!-- Hour Grid -->
+                    <div v-for="h in 24" :key="h" class="time-slot" :style="{ height: hourHeight + 'px' }">
+                        <span class="time-label">{{ formatHour(h-1) }}</span>
+                    </div>
+
+                    <!-- Events on Timeline -->
+                    <div v-for="evt in selectedEvents" :key="evt.id" 
+                        @click="openEvent(evt)"
+                        class="timeline-event cursor-pointer opacity-90 hover:opacity-100"
+                        :class="getCategoryBg(evt.category)"
+                        :style="getEventStyle(evt)">
+                        <div class="font-bold truncate">{{ evt.title }}</div>
+                        <div class="text-[9px] opacity-80 truncate">{{ formatTime(evt.start) }} - {{ formatTime(evt.end) }}</div>
                     </div>
                 </div>
             </div>
@@ -75,58 +127,44 @@
 
         <!-- Event Modal -->
         <div v-if="editingEvent" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div class="bg-[#111] border border-[#333] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] relative">
-                <!-- Color bar -->
-                <div class="h-1.5 w-full" :class="getCategoryBg(editingEvent.category)"></div>
-
-                <div class="p-6 border-b border-[#222] bg-[#151515] flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                         <h3 class="font-bold text-white text-lg">{{ isNew ? 'Add Event' : 'Event Details' }}</h3>
-                         <span v-if="!isNew" class="text-xs text-gray-500 font-mono">{{ formatDateLong(editingEvent.date) }}</span>
-                    </div>
-                     <div class="flex gap-2">
-                        <button v-if="!isNew" @click="deleteEvent" class="text-gray-500 hover:text-red-500 px-3 py-1 rounded hover:bg-[#222] transition"><i class="fa-solid fa-trash"></i></button>
-                        <button @click="editingEvent = null" class="text-gray-400 hover:text-white px-3 py-1"><i class="fa-solid fa-times"></i></button>
-                     </div>
+            <div class="bg-[#111] border border-[#333] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-fade-in">
+                <div class="p-4 border-b border-[#222] flex justify-between items-center bg-[#151515]">
+                    <h3 class="font-bold text-white">{{ isNew ? 'Add Event' : 'Edit Event' }}</h3>
+                    <button @click="editingEvent = null" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
                 </div>
                 
-                <div class="p-6 overflow-y-auto space-y-5">
-                     <div>
-                         <input v-model="editingEvent.title" class="bg-transparent text-2xl font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Event Title">
-                     </div>
-
+                <div class="p-6 space-y-4 overflow-y-auto">
+                     <input v-model="editingEvent.title" class="bg-transparent text-xl font-bold text-white w-full outline-none placeholder-gray-600 border-b border-transparent focus:border-[#333]" placeholder="Event Title">
+                     
                      <div class="grid grid-cols-2 gap-4">
                          <div>
-                             <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Date</label>
-                             <input type="date" v-model="editingEvent.date" class="input-base text-gray-300">
+                             <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Start Time</label>
+                             <input type="time" v-model="editingEvent.start" class="input-base">
                          </div>
                          <div>
-                             <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Category</label>
-                             <div class="flex gap-2">
-                                 <button v-for="cat in ['exam', 'class', 'deadline', 'personal']" :key="cat" 
-                                    @click="editingEvent.category = cat"
-                                    :class="['px-3 py-1.5 rounded text-xs capitalize transition border', editingEvent.category === cat ? 'border-white text-white' : 'border-[#333] text-gray-500 hover:border-gray-500']">
-                                    {{ cat }}
-                                 </button>
-                             </div>
+                             <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">End Time</label>
+                             <input type="time" v-model="editingEvent.end" class="input-base">
                          </div>
                      </div>
-                     
-                     <div class="flex flex-col h-64">
-                         <div class="flex justify-between items-end mb-2">
-                            <label class="text-[10px] text-gray-500 font-bold uppercase">Description & Notes (Markdown)</label>
-                            <div class="flex bg-[#0a0a0a] border border-[#333] rounded p-0.5">
-                                <button @click="viewMode='edit'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='edit'?'bg-[#222] text-white':'text-gray-500']">Edit</button>
-                                <button @click="viewMode='preview'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='preview'?'bg-[#222] text-white':'text-gray-500']">Preview</button>
-                            </div>
-                         </div>
-                         <textarea v-if="viewMode==='edit'" v-model="editingEvent.details" class="flex-1 input-base resize-none font-mono text-sm leading-relaxed" placeholder="Type details, links, or notes..."></textarea>
-                         <div v-else class="flex-1 bg-[#0a0a0a] border border-[#333] rounded-lg p-4 prose prose-invert prose-sm overflow-y-auto" v-html="renderMd(editingEvent.details)"></div>
+
+                     <div class="flex gap-2">
+                         <button v-for="cat in ['exam', 'study', 'class', 'personal', 'other']" :key="cat" 
+                            @click="editingEvent.category = cat"
+                            :class="['px-3 py-1 text-xs rounded-full border capitalize transition', editingEvent.category === cat ? getCategoryBorder(cat) + ' text-white bg-white/10' : 'border-[#333] text-gray-500 hover:border-gray-500']">
+                            {{ cat }}
+                         </button>
+                     </div>
+
+                     <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Details (Markdown)</label>
+                        <textarea v-model="editingEvent.details" class="input-base h-32 resize-none text-sm font-mono" placeholder="Add notes, syllabus, links..."></textarea>
                      </div>
                 </div>
 
-                <div class="p-4 border-t border-[#222] bg-[#151515] flex justify-end">
-                    <button @click="saveEvent" class="px-8 py-2.5 bg-white hover:bg-gray-200 text-black rounded-lg font-bold transition">Save</button>
+                <div class="p-4 border-t border-[#222] bg-[#151515] flex justify-between">
+                    <button v-if="!isNew" @click="deleteEvent" class="text-red-500 hover:text-red-400 text-sm font-bold">Delete</button>
+                    <div v-else></div>
+                    <button @click="saveEvent" class="px-6 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-sm font-bold transition">Save</button>
                 </div>
             </div>
         </div>
@@ -143,16 +181,20 @@
                 return {
                     events: [],
                     currentDate: new Date(),
+                    selectedDateStr: new Date().toISOString().split('T')[0],
                     editingEvent: null,
                     isNew: false,
-                    viewMode: 'edit',
-                    notification: null
+                    notification: null,
+                    hourHeight: 60, // px per hour
                 }
             },
             computed: {
                 currentYear() { return this.currentDate.getFullYear(); },
                 currentMonth() { return this.currentDate.getMonth(); },
-                currentMonthName() { return this.currentDate.toLocaleString('default', { month: 'long' }); },
+                currentMonthName() { return this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' }); },
+                selectedEvents() {
+                    return this.events.filter(e => e.date === this.selectedDateStr).sort((a,b) => a.start.localeCompare(b.start));
+                },
                 days() {
                     const year = this.currentYear;
                     const month = this.currentMonth;
@@ -164,104 +206,142 @@
                     const res = [];
                     const prevMonthLastDay = new Date(year, month, 0).getDate();
                     for (let i = startingDay - 1; i >= 0; i--) {
-                        res.push({ dayNum: prevMonthLastDay - i, isCurrentMonth: false, dateStr: '' }); 
+                        res.push({ dayNum: prevMonthLastDay - i, isCurrentMonth: false, dateStr: this.getDateStr(year, month - 1, prevMonthLastDay - i) }); 
                     }
                     for (let i = 1; i <= daysInMonth; i++) {
-                        const d = new Date(year, month, i);
-                        const m = (month + 1).toString().padStart(2, '0');
-                        const day = i.toString().padStart(2, '0');
-                        res.push({ dayNum: i, isCurrentMonth: true, dateStr: `${year}-${m}-${day}` });
+                        res.push({ dayNum: i, isCurrentMonth: true, dateStr: this.getDateStr(year, month, i) });
                     }
                     return res;
                 }
             },
-            mounted() { this.loadFile(); },
+            mounted() { 
+                this.loadFile(); 
+                setInterval(() => this.$forceUpdate(), 60000); // Update current time line
+            },
             methods: {
                 async loadFile() {
                     try {
                         const res = await fetch('./events.json');
-                        if (res.ok) this.events = await res.json();
-                        if(!Array.isArray(this.events)) this.events = [];
+                        if (res.ok) {
+                            let data = await res.json();
+                            // Data migration to ensure start/end times
+                            this.events = data.map(e => ({
+                                ...e,
+                                start: e.start || '09:00',
+                                end: e.end || '10:00'
+                            }));
+                        } else { this.events = []; }
                     } catch (e) { this.events = []; }
                 },
+                getDateStr(y, m, d) {
+                     const date = new Date(y, m, d);
+                     return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+                },
                 changeMonth(delta) { this.currentDate = new Date(this.currentYear, this.currentMonth + delta, 1); },
-                jumpToToday() { this.currentDate = new Date(); },
-                getEvents(dateStr) { if(!dateStr) return []; return this.events.filter(e => e.date === dateStr); },
+                jumpToToday() { 
+                    this.currentDate = new Date(); 
+                    this.selectedDateStr = this.getDateStr(this.currentYear, this.currentMonth, this.currentDate.getDate());
+                },
+                selectDate(str) { this.selectedDateStr = str; },
+                getEvents(dateStr) { return this.events.filter(e => e.date === dateStr); },
                 isToday(dateStr) { 
-                     if(!dateStr) return false;
                      const t = new Date();
-                     return dateStr === `${t.getFullYear()}-${(t.getMonth()+1).toString().padStart(2,'0')}-${t.getDate().toString().padStart(2,'0')}`;
+                     const tStr = `${t.getFullYear()}-${(t.getMonth()+1).toString().padStart(2,'0')}-${t.getDate().toString().padStart(2,'0')}`;
+                     return dateStr === tStr;
                 },
-                getCategoryColor(cat) {
-                    if(cat === 'exam') return 'bg-red-900/30 text-red-200 border-red-500/30 hover:border-red-500';
-                    if(cat === 'deadline') return 'bg-orange-900/30 text-orange-200 border-orange-500/30 hover:border-orange-500';
-                    if(cat === 'class') return 'bg-blue-900/30 text-blue-200 border-blue-500/30 hover:border-blue-500';
-                    return 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-400';
-                },
-                getCategoryDot(cat) {
-                    if(cat === 'exam') return 'bg-red-500';
-                    if(cat === 'deadline') return 'bg-orange-500';
-                    if(cat === 'class') return 'bg-blue-500';
-                    return 'bg-gray-500';
-                },
-                getCategoryBg(cat) {
-                    if(cat === 'exam') return 'bg-red-600';
-                    if(cat === 'deadline') return 'bg-orange-600';
-                    if(cat === 'class') return 'bg-blue-600';
-                    return 'bg-gray-600';
-                },
-                selectDate(dateStr) {
-                    if(!dateStr) return;
-                    // If no event on this date in quick mode, maybe open new
+                formatHour(h) { return `${h.toString().padStart(2,'0')}:00`; },
+                newEvent() {
+                    this.isNew = true;
+                    this.editingEvent = {
+                        id: Date.now().toString(),
+                        title: '',
+                        date: this.selectedDateStr,
+                        start: '09:00',
+                        end: '10:00',
+                        category: 'study',
+                        details: ''
+                    };
                 },
                 openEvent(evt) {
                     this.isNew = false;
                     this.editingEvent = JSON.parse(JSON.stringify(evt));
-                    this.viewMode = 'preview'; 
-                },
-                formatDateLong(d) {
-                    if(!d) return '';
-                    return new Date(d).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 },
                 saveEvent() {
+                    // Validation: Ensure End > Start
+                    if (this.editingEvent.end <= this.editingEvent.start) {
+                        alert("End time must be after start time");
+                        return;
+                    }
                     if(this.isNew) {
-                         if(!this.editingEvent.title) this.editingEvent.title = 'Untitled Event';
+                         if(!this.editingEvent.title) this.editingEvent.title = 'Untitled';
                          this.events.push(this.editingEvent);
                     } else {
                         const idx = this.events.findIndex(e => e.id === this.editingEvent.id);
                         if(idx !== -1) this.events[idx] = this.editingEvent;
                     }
                     this.editingEvent = null;
-                    this.showNotification('Event Saved');
+                    this.showNotification('Saved');
                 },
                 deleteEvent() {
                      const idx = this.events.findIndex(e => e.id === this.editingEvent.id);
                      if(idx !== -1) this.events.splice(idx, 1);
                      this.editingEvent = null;
                 },
-                renderMd(t) { return t ? marked.parse(t) : ''; },
+                
+                // Timeline Helpers
+                getEventStyle(evt) {
+                    const parse = t => { const [h,m] = t.split(':').map(Number); return h + m/60; };
+                    const startH = parse(evt.start);
+                    const endH = parse(evt.end);
+                    const duration = endH - startH;
+                    return {
+                        top: (startH * this.hourHeight) + 'px',
+                        height: (duration * this.hourHeight) + 'px'
+                    };
+                },
+                getCurrentTimePos() {
+                    const now = new Date();
+                    const hours = now.getHours() + now.getMinutes() / 60;
+                    return hours * this.hourHeight;
+                },
+                
+                // Visual Helpers
+                getFormattedSelectedDate() {
+                    const d = new Date(this.selectedDateStr);
+                    return d.toLocaleDateString('default', { month: 'short', day: 'numeric' });
+                },
+                getDayOfWeek(str) {
+                    return new Date(str).toLocaleDateString('default', { weekday: 'long' });
+                },
+                formatTime(t) { return t; },
+                getCategoryDot(cat) {
+                    const map = { exam: 'bg-red-500', study: 'bg-pink-500', class: 'bg-blue-500', personal: 'bg-green-500', other:'bg-gray-500' };
+                    return map[cat] || map.other;
+                },
+                getCategoryBg(cat) {
+                    const map = { exam: 'bg-red-600', study: 'bg-pink-600', class: 'bg-blue-600', personal: 'bg-green-600', other:'bg-gray-700' };
+                    return map[cat] || map.other;
+                },
+                getCategoryBorder(cat) {
+                    const map = { exam: 'border-red-500', study: 'border-pink-500', class: 'border-blue-500', personal: 'border-green-500', other:'border-gray-500' };
+                    return map[cat] || map.other;
+                },
                 async saveFile() {
-                    try {
+                     try {
                         if (window.showSaveFilePicker) {
                             const handle = await window.showSaveFilePicker({ suggestedName: 'events.json' });
                             const writable = await handle.createWritable();
                             await writable.write(JSON.stringify(this.events, null, 2));
                             await writable.close();
-                            this.showNotification('Calendar Saved');
+                            this.showNotification('Saved to events.json');
                         } else {
-                             const blob = new Blob([JSON.stringify(this.events, null, 2)], {type: 'application/json'});
-                             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'events.json'; a.click();
-                             this.showNotification('Calendar Downloaded');
+                            const blob = new Blob([JSON.stringify(this.events, null, 2)], {type: 'application/json'});
+                            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'events.json'; a.click();
+                            this.showNotification('Downloaded events.json');
                         }
                     } catch (err) { console.error(err); }
                 },
                 showNotification(msg) { this.notification = msg; setTimeout(() => this.notification = null, 3000); }
-            },
-            watch: {
-                // simple hack to trigger selectDate for new events via dblclick logic inside template
-                'editingEvent': function(val) {
-                    // if val is null, closed.
-                }
             }
         }).mount('#app');
     </script>

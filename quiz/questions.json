@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "id": "1",
+    "title": "Welcome Quiz",
+    "desc": "A sample quiz to test the new features.",
+    "tags": ["Demo"],
+    "questions": [
+      {
+        "type": "mcq",
+        "text": "# What is the capital of France?",
+        "options": [
+          { "text": "London", "isCorrect": false },
+          { "text": "Berlin", "isCorrect": false },
+          { "text": "Paris", "isCorrect": true },
+          { "text": "Madrid", "isCorrect": false }
+        ],
+        "explanation": "Paris is the capital."
+      },
+      {
+        "type": "boolean",
+        "text": "The earth is flat.",
+        "answer": false,
+        "explanation": "It is a sphere."
+      },
+      {
+        "type": "numeric",
+        "text": "What is 2 + 2?",
+        "answer": 4,
+        "explanation": "Basic math."
+      }
+    ]
+  }
+]
