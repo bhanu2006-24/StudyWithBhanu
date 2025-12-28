@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager | Student Community</title>
+    <title>Task Kanban | Student Community</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,91 +11,220 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
-        .glass { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.3s; }
-        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .glass { background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-base { background: #111; border: 1px solid #222; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; }
+        .input-base:focus { border-color: #3b82f6; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+        /* Drag & Drop Styling */
+        .column { min-height: 200px; transition: background 0.2s; }
+        .column.drag-over { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
+        .task-card { cursor: grab; user-select: none; transition: transform 0.2s, box-shadow 0.2s; }
+        .task-card:active { cursor: grabbing; transform: scale(1.02); }
+        .task-card.dragging { opacity: 0.5; }
+        
+        .priority-high { border-left: 3px solid #ef4444; }
+        .priority-medium { border-left: 3px solid #f97316; }
+        .priority-low { border-left: 3px solid #22c55e; }
     </style>
 </head>
-<body class="min-h-screen p-6 relative overflow-hidden">
-    <div id="app" class="max-w-7xl mx-auto h-screen flex flex-col pb-4">
+<body class="min-h-screen p-4 md:p-6 relative overflow-hidden">
+    <div id="app" class="max-w-[1600px] mx-auto h-screen flex flex-col pb-4">
+        
+        <!-- Header -->
         <header class="flex justify-between items-center mb-6 shrink-0">
             <div class="flex items-center gap-3">
-                 <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-list-check text-lg"></i></div>
+                 <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-900/40"><i class="fa-solid fa-kanban text-lg"></i></div>
                 <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Task Manager</h1>
-                    <p class="text-gray-500 text-xs">Track your progress</p>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Task Board</h1>
+                    <p class="text-gray-500 text-xs font-mono">Drag & Drop Workflow</p>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button @click="loadFile" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm">Reload</button>
-                <button @click="saveFile" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-sm font-medium shadow-lg shadow-blue-500/20">Save JSON</button>
+            
+            <div class="flex gap-4">
+                 <div class="relative group">
+                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-500 text-xs group-focus-within:text-blue-400"></i>
+                     <input v-model="searchQuery" class="bg-[#111] border border-[#222] rounded-lg pl-8 pr-4 py-2 text-sm text-gray-300 focus:border-blue-500 outline-none w-48 transition" placeholder="Search...">
+                 </div>
+                 
+                 <div class="flex bg-[#111] rounded-lg p-1 border border-[#222]">
+                     <button @click="view = 'board'" :class="['px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-2', view === 'board' ? 'bg-[#222] text-white shadow' : 'text-gray-500 hover:text-gray-300']"><i class="fa-solid fa-table-columns"></i> Board</button>
+                     <button @click="view = 'list'" :class="['px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-2', view === 'list' ? 'bg-[#222] text-white shadow' : 'text-gray-500 hover:text-gray-300']"><i class="fa-solid fa-list"></i> List</button>
+                 </div>
+
+                <div class="h-8 w-px bg-[#222]"></div>
+
+                <button @click="loadFile" class="w-8 h-8 rounded-lg bg-[#1a1a1a] hover:bg-[#222] border border-[#333] text-gray-400 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-rotate-right"></i></button>
+                <button @click="saveFile" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-sm font-bold shadow-lg shadow-blue-600/20 text-white flex items-center gap-2 transition"><i class="fa-solid fa-cloud-arrow-up"></i> Save</button>
             </div>
         </header>
 
-        <div class="flex-1 flex gap-6 overflow-hidden">
-            <!-- Task List -->
-            <div class="w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
-                 <!-- Add New input -->
-                <form @submit.prevent="addTask" class="glass rounded-xl p-4 flex gap-2 shrink-0">
-                    <input v-model="newTask" class="input-field text-sm" placeholder="Add a new task..." required>
-                    <button type="submit" class="px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition"><i class="fa-solid fa-plus"></i></button>
-                </form>
+        <!-- Kanban Board View -->
+        <div v-if="view === 'board'" class="flex-1 flex gap-6 overflow-hidden">
+            <div v-for="col in columns" :key="col.id" 
+                 class="flex-1 flex flex-col glass rounded-2xl overflow-hidden min-w-[300px]"
+                 @dragover.prevent="onDragOver($event, col.id)"
+                 @drop="onDrop($event, col.id)">
+                
+                <!-- Column Header -->
+                <div class="p-4 border-b border-[#222] flex justify-between items-center bg-[#111]/50">
+                    <div class="flex items-center gap-3">
+                        <div :class="['w-3 h-3 rounded-full', col.color]"></div>
+                        <h2 class="font-bold text-gray-200 text-sm uppercase tracking-wider">{{ col.title }}</h2>
+                        <span class="bg-[#222] text-gray-500 text-xs px-2 py-0.5 rounded-full font-mono">{{ getTasksByStatus(col.id).length }}</span>
+                    </div>
+                    <button @click="quickAddTask(col.id)" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-plus"></i></button>
+                </div>
 
-                <div class="space-y-3">
-                    <div v-for="(task, index) in tasks" :key="index" 
-                        @click="selectTask(task)"
-                        :class="['p-4 rounded-xl border flex items-center justify-between group cursor-pointer transition', 
-                            selected === task ? 'bg-blue-900/10 border-blue-500/50' : 'bg-[#0a0a0a] border-[#222] hover:border-blue-500/30']">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <button @click.stop="toggleTask(task)" :class="['w-5 h-5 rounded border flex items-center justify-center transition shrink-0', task.completed ? 'bg-blue-500 border-blue-500' : 'border-gray-600 hover:border-blue-400']">
-                                <i v-if="task.completed" class="fa-solid fa-check text-white text-[10px]"></i>
-                            </button>
-                            <span :class="['text-sm truncate transition', task.completed ? 'text-gray-600 line-through' : 'text-gray-200']">{{ task.title }}</span>
+                <!-- Task List (Droppable Area) -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-3 column" :class="{'drag-over': dragOverCol === col.id}">
+                    <div v-for="task in getTasksByStatus(col.id)" :key="task.id"
+                         draggable="true"
+                         @dragstart="onDragStart($event, task)"
+                         @dragend="onDragEnd"
+                         @click="openTaskModal(task)"
+                         :class="['task-card bg-[#111] p-4 rounded-xl border border-[#222] hover:border-blue-500/30 group relative', getPriorityClass(task.priority)]">
+                        
+                        <div class="flex justify-between items-start mb-2">
+                             <div class="flex flex-wrap gap-1">
+                                 <span v-for="tag in task.tags" :key="tag" class="text-[9px] px-1.5 py-0.5 rounded bg-[#1a1a1a] text-gray-400 border border-[#333]">{{ tag }}</span>
+                             </div>
+                             <div class="opacity-0 group-hover:opacity-100 transition">
+                                 <button @click.stop="deleteTask(task.id)" class="text-gray-600 hover:text-red-500 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                             </div>
                         </div>
-                        <button @click.stop="deleteTask(index)" class="text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2"><i class="fa-solid fa-trash text-xs"></i></button>
+
+                        <h3 class="text-sm font-bold text-gray-200 leading-tight mb-2 group-hover:text-white transition">{{ task.title }}</h3>
+                        
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-[#1a1a1a]">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <i class="fa-regular fa-calendar"></i>
+                                <span :class="{'text-red-400': isOverdue(task.deadline)}">{{ formatDate(task.deadline) }}</span>
+                            </div>
+                            <div v-if="task.priority !== 'none'" :class="['text-[10px] uppercase font-bold px-1.5 py-0.5 rounded', getPriorityBadgeClass(task.priority)]">
+                                {{ task.priority }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div v-if="getTasksByStatus(col.id).length === 0" class="h-32 flex flex-col items-center justify-center text-gray-700 border-2 border-dashed border-[#222] rounded-xl">
+                        <p class="text-xs">Drop here</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Detail View -->
-             <div class="w-2/3 glass rounded-2xl p-0 flex flex-col relative overflow-hidden">
-                 <div v-if="selected" class="h-full flex flex-col">
-                     <div class="p-6 border-b border-[#222]">
-                         <input v-model="selected.title" class="bg-transparent text-xl font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Task Title">
-                         <div class="flex gap-4 text-xs text-gray-500 mt-2">
-                             <span>Created: {{ new Date(selected.createdAt).toLocaleDateString() }}</span>
-                             <span :class="selected.completed ? 'text-green-500' : 'text-orange-500'">{{ selected.completed ? 'Completed' : 'Pending' }}</span>
-                         </div>
-                     </div>
-                     
-                     <div class="flex-1 flex flex-col p-6 bg-[#080808]">
-                         <div class="flex justify-between items-end mb-2">
-                            <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Details & Notes</label>
-                            <div class="flex bg-[#1a1a1a] rounded p-1 border border-[#333]">
-                                <button @click="viewMode='edit'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='edit'?'bg-[#333] text-white':'text-gray-500']">Write</button>
-                                <button @click="viewMode='preview'" :class="['text-[10px] px-3 py-1 rounded transition', viewMode==='preview'?'bg-[#333] text-white':'text-gray-500']">Preview</button>
-                            </div>
-                         </div>
-                         
-                         <textarea v-if="viewMode==='edit'" v-model="selected.details" class="flex-1 w-full bg-[#111] border border-[#222] rounded-xl p-4 text-sm font-mono text-gray-300 focus:border-blue-500/50 outline-none leading-relaxed resize-none transition" placeholder="# Detailed notes...\n- [ ] Subtask 1\n- [ ] Subtask 2"></textarea>
-                         
-                         <div v-else class="flex-1 w-full bg-[#0a0a0a] border border-[#222] rounded-xl p-6 prose prose-invert prose-sm overflow-y-auto" v-html="renderMd(selected.details)"></div>
-                     </div>
-                 </div>
-                 <div v-else class="h-full flex flex-col items-center justify-center text-gray-600">
-                    <i class="fa-solid fa-clipboard-check text-4xl mb-4 opacity-20"></i>
-                    <p class="text-sm">Select a task to view details</p>
-                </div>
-             </div>
         </div>
         
-        <!-- Notification -->
-        <div v-if="notification" class="fixed top-6 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-fade-in">
-            <span class="text-blue-400">✓</span> {{ notification }}
+        <!-- List View -->
+        <div v-if="view === 'list'" class="flex-1 flex flex-col glass rounded-2xl overflow-hidden">
+             <!-- Simple Table Header -->
+             <div class="grid grid-cols-12 gap-4 p-4 border-b border-[#222] bg-[#111] text-xs font-bold text-gray-500 uppercase tracking-widest">
+                 <div class="col-span-6">Task Title</div>
+                 <div class="col-span-2">Status</div>
+                 <div class="col-span-2">Priority</div>
+                 <div class="col-span-2">Deadline</div>
+             </div>
+             <div class="flex-1 overflow-y-auto">
+                 <div v-for="task in filteredTasks" :key="task.id" @click="openTaskModal(task)" class="grid grid-cols-12 gap-4 p-4 border-b border-[#222] hover:bg-[#151515] cursor-pointer transition items-center">
+                     <div class="col-span-6 font-medium text-sm text-gray-200">{{ task.title }}</div>
+                     <div class="col-span-2">
+                         <span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase border', getStatusBadgeClass(task.status)]">{{ formatStatus(task.status) }}</span>
+                     </div>
+                     <div class="col-span-2">
+                         <span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase', getPriorityBadgeClass(task.priority)]">{{ task.priority }}</span>
+                     </div>
+                     <div class="col-span-2 text-xs text-gray-500 font-mono">{{ task.deadline || '-' }}</div>
+                 </div>
+             </div>
         </div>
+
+        <!-- Task Edit Modal -->
+        <div v-if="editingTask" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+             <div class="bg-[#111] border border-[#333] rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden relative">
+                 
+                 <!-- Modal Header -->
+                 <div class="p-6 border-b border-[#222] bg-[#151515] flex justify-between items-start">
+                     <div class="w-full mr-4">
+                         <input v-model="editingTask.title" class="bg-transparent text-xl font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Task Title">
+                         <div class="flex gap-4 mt-2 text-xs">
+                             <div class="flex items-center gap-2">
+                                 <span class="text-gray-500">Status:</span>
+                                 <select v-model="editingTask.status" class="bg-[#222] border border-[#333] rounded px-2 py-0.5 text-gray-300 outline-none">
+                                     <option value="todo">To Do</option>
+                                     <option value="in_progress">In Progress</option>
+                                     <option value="done">Done</option>
+                                 </select>
+                             </div>
+                             <div class="flex items-center gap-2">
+                                 <span class="text-gray-500">Priority:</span>
+                                 <select v-model="editingTask.priority" class="bg-[#222] border border-[#333] rounded px-2 py-0.5 text-gray-300 outline-none">
+                                     <option value="low">Low</option>
+                                     <option value="medium">Medium</option>
+                                     <option value="high">High</option>
+                                 </select>
+                             </div>
+                         </div>
+                     </div>
+                     <button @click="editingTask = null" class="text-gray-500 hover:text-white px-2"><i class="fa-solid fa-xmark text-xl"></i></button>
+                 </div>
+                 
+                 <div class="flex-1 flex overflow-hidden">
+                     <!-- Main Content -->
+                     <div class="flex-1 p-6 overflow-y-auto bg-[#0a0a0a] flex flex-col">
+                         <div class="flex justify-between items-end mb-2">
+                            <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Description</label>
+                            <div class="flex bg-[#1a1a1a] rounded p-1 border border-[#333]">
+                                <button @click="modalViewMode='edit'" :class="['text-[10px] px-3 py-1 rounded transition', modalViewMode==='edit'?'bg-[#333] text-white':'text-gray-500']">Write</button>
+                                <button @click="modalViewMode='preview'" :class="['text-[10px] px-3 py-1 rounded transition', modalViewMode==='preview'?'bg-[#333] text-white':'text-gray-500']">Preview</button>
+                            </div>
+                         </div>
+                         <textarea v-if="modalViewMode==='edit'" v-model="editingTask.details" class="flex-1 w-full bg-[#111] border border-[#222] rounded-xl p-4 text-sm font-mono text-gray-300 focus:border-blue-500/50 outline-none leading-relaxed resize-none transition mb-4" placeholder="Add detailed notes, checklists, etc..."></textarea>
+                         <div v-else class="flex-1 w-full bg-[#0a0a0a] border border-[#222] rounded-xl p-6 prose prose-invert prose-sm overflow-y-auto mb-4" v-html="renderMd(editingTask.details)"></div>
+                     </div>
+                     
+                     <!-- Sidebar -->
+                     <div class="w-72 bg-[#111] border-l border-[#222] p-6 space-y-6 overflow-y-auto">
+                         <div>
+                             <label class="text-xs text-gray-500 font-bold uppercase block mb-2">Metadata</label>
+                             <div class="space-y-4">
+                                 <div>
+                                     <label class="text-[10px] text-gray-600 block mb-1">Due Date</label>
+                                     <input type="date" v-model="editingTask.deadline" class="input-base text-xs w-full bg-[#0a0a0a]">
+                                 </div>
+                                 <div>
+                                     <label class="text-[10px] text-gray-600 block mb-1">Tags (Enter to add)</label>
+                                     <div class="flex flex-wrap gap-1 mb-2">
+                                         <span v-for="(tag, i) in editingTask.tags" :key="i" class="text-[10px] bg-blue-900/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/20 flex items-center gap-1 group">
+                                             {{ tag }} <button @click="editingTask.tags.splice(i, 1)" class="hidden group-hover:block hover:text-white">x</button>
+                                         </span>
+                                     </div>
+                                     <input @keydown.enter="addTag" class="input-base text-xs w-full bg-[#0a0a0a]" placeholder="+ Add tags">
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <div class="pt-6 border-t border-[#222]">
+                             <button @click="deleteTask(editingTask.id); editingTask = null" class="w-full py-2 border border-red-900/30 text-red-500 hover:bg-red-900/10 rounded text-xs font-bold transition">Delete Task</button>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="p-4 border-t border-[#222] bg-[#151515] flex justify-end">
+                     <button @click="saveTask" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shadow-lg shadow-blue-900/40">Done</button>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Notification -->
+        <div v-if="notification" class="fixed top-6 right-6 z-[60] px-6 py-3 rounded-xl shadow-2xl border border-blue-500/20 bg-[#111] text-white flex items-center gap-3 animate-bounce-in">
+            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs"><i class="fa-solid fa-check"></i></div>
+            <span class="text-sm font-medium">{{ notification }}</span>
+        </div>
+
     </div>
 
     <script>
@@ -103,11 +232,25 @@
         createApp({
             data() {
                 return {
+                    view: 'board',
                     tasks: [],
-                    newTask: '',
-                    selected: null,
-                    viewMode: 'edit',
+                    searchQuery: '',
+                    editingTask: null,
+                    modalViewMode: 'edit',
+                    columns: [
+                        { id: 'todo', title: 'To Do', color: 'bg-gray-500' },
+                        { id: 'in_progress', title: 'In Progress', color: 'bg-blue-500' },
+                        { id: 'done', title: 'Done', color: 'bg-green-500' }
+                    ],
+                    dragOverCol: null,
+                    draggedTask: null,
                     notification: null
+                }
+            },
+            computed: {
+                filteredTasks() {
+                    const q = this.searchQuery.toLowerCase();
+                    return this.tasks.filter(t => t.title.toLowerCase().includes(q) || t.tags.some(tag => tag.toLowerCase().includes(q)));
                 }
             },
             mounted() { this.loadFile(); },
@@ -115,39 +258,129 @@
                 async loadFile() {
                     try {
                         const res = await fetch('./tasks.json');
-                        if (res.ok) this.tasks = await res.json();
-                        // ensure details field
-                        this.tasks.forEach(t => { if(!t.details) t.details = ''; });
-                    } catch (e) { console.error(e); }
+                        if (res.ok) {
+                            let data = await res.json();
+                            // Migration Logic
+                            this.tasks = data.map(t => ({
+                                id: t.id || Date.now().toString() + Math.random(),
+                                title: t.title || 'Untitled',
+                                details: t.details || '',
+                                status: t.status || (t.completed ? 'done' : 'todo'),
+                                priority: t.priority || 'medium',
+                                tags: t.tags || [],
+                                deadline: t.deadline || '',
+                                createdAt: t.createdAt || new Date().toISOString()
+                            }));
+                        } else { this.tasks = []; }
+                    } catch (e) { this.tasks = []; }
                 },
-                addTask() {
-                    if (this.newTask.trim()) {
-                        const t = { title: this.newTask, completed: false, createdAt: new Date().toISOString(), details: '' };
-                        this.tasks.unshift(t);
-                        this.newTask = '';
-                        this.selectTask(t);
+                getTasksByStatus(status) {
+                    return this.filteredTasks.filter(t => t.status === status);
+                },
+                quickAddTask(colId) {
+                    const newTask = {
+                        id: Date.now().toString(),
+                        title: 'New Task',
+                        details: '',
+                        status: colId,
+                        priority: 'medium',
+                        tags: [],
+                        deadline: '',
+                        createdAt: new Date().toISOString()
+                    };
+                    this.tasks.push(newTask);
+                    this.editingTask = newTask;
+                    this.modalViewMode = 'edit';
+                },
+                openTaskModal(task) {
+                    this.editingTask = JSON.parse(JSON.stringify(task)); // Clone for editing
+                    this.modalViewMode = 'preview'; 
+                },
+                saveTask() {
+                    const idx = this.tasks.findIndex(t => t.id === this.editingTask.id);
+                    if(idx !== -1) {
+                         this.tasks[idx] = this.editingTask;
+                         this.editingTask = null;
+                         this.showNotification('Task Updated');
+                         this.saveFile(true); // Auto-save
                     }
                 },
-                selectTask(t) { this.selected = t; this.viewMode = 'edit'; },
-                toggleTask(task) { task.completed = !task.completed; },
-                deleteTask(index) {
-                    const t = this.tasks[index];
-                    this.tasks.splice(index, 1);
-                    if(this.selected === t) this.selected = null;
+                deleteTask(id) {
+                    if(confirm("Delete task?")) {
+                        this.tasks = this.tasks.filter(t => t.id !== id);
+                    }
                 },
-                renderMd(t) { return t ? marked.parse(t) : '<p class="text-gray-600 italic">No details provided.</p>'; },
-                async saveFile() {
+                
+                // Tag Logic
+                addTag(e) {
+                    const val = e.target.value.trim();
+                    if(val && !this.editingTask.tags.includes(val)) {
+                        this.editingTask.tags.push(val);
+                    }
+                    e.target.value = '';
+                },
+
+                // Drag & Drop
+                onDragStart(e, task) {
+                    this.draggedTask = task;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.target.classList.add('dragging');
+                },
+                onDragEnd(e) {
+                    e.target.classList.remove('dragging');
+                    this.dragOverCol = null;
+                    this.draggedTask = null;
+                },
+                onDragOver(e, colId) {
+                    this.dragOverCol = colId;
+                },
+                onDrop(e, colId) {
+                    if(this.draggedTask && this.draggedTask.status !== colId) {
+                        this.draggedTask.status = colId;
+                        this.showNotification(`Moved to ${this.columns.find(c=>c.id===colId).title}`);
+                        this.saveFile(true); // Auto-save on drop
+                    }
+                    this.dragOverCol = null;
+                },
+
+                // Utilities
+                renderMd(t) { return t ? marked.parse(t) : '<p class="text-gray-600 italic">No details.</p>'; },
+                formatDate(d) { if(!d) return '-'; return new Date(d).toLocaleDateString(); },
+                isOverdue(d) { if(!d) return false; return new Date(d) < new Date().setHours(0,0,0,0); },
+                formatStatus(s) { 
+                    if(s==='todo') return 'To Do';
+                    if(s==='in_progress') return 'In Progress';
+                    return 'Done';
+                },
+                getStatusBadgeClass(s) {
+                    if(s==='todo') return 'border-gray-500 text-gray-500 bg-gray-500/10';
+                    if(s==='in_progress') return 'border-blue-500 text-blue-500 bg-blue-500/10';
+                    return 'border-green-500 text-green-500 bg-green-500/10';
+                },
+                getPriorityClass(p) {
+                    if(p==='high') return 'priority-high';
+                    if(p==='medium') return 'priority-medium';
+                    return 'priority-low';
+                },
+                getPriorityBadgeClass(p) {
+                    if(p==='high') return 'bg-red-500/20 text-red-400';
+                    if(p==='medium') return 'bg-orange-500/20 text-orange-400';
+                    return 'bg-green-500/20 text-green-400';
+                },
+                async saveFile(silent=false) {
                     try {
+                        // In a real environment with File System Access, this works great.
+                        // Fallback included.
                         if (window.showSaveFilePicker) {
                             const handle = await window.showSaveFilePicker({ suggestedName: 'tasks.json' });
                             const writable = await handle.createWritable();
                             await writable.write(JSON.stringify(this.tasks, null, 2));
                             await writable.close();
-                            this.showNotification('Saved to tasks.json');
+                            if(!silent) this.showNotification('Saved to tasks.json');
                         } else {
-                             const blob = new Blob([JSON.stringify(this.tasks, null, 2)], {type: 'application/json'});
-                             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click();
-                             this.showNotification('Downloaded tasks.json');
+                            const blob = new Blob([JSON.stringify(this.tasks, null, 2)], {type: 'application/json'});
+                            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click();
+                            if(!silent) this.showNotification('Downloaded tasks.json');
                         }
                     } catch (err) { console.error(err); }
                 },
