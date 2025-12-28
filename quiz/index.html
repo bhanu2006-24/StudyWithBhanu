@@ -8,11 +8,15 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
         .glass { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.3s; }
         .input-field:focus { border-color: #f97316; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
 <body class="min-h-screen p-6 relative overflow-x-hidden">
@@ -36,11 +40,27 @@
             <div class="glass rounded-xl p-6">
                 <h2 class="text-xl font-bold text-orange-500 mb-4">Add New Question</h2>
                 <div class="space-y-4">
-                    <input v-model="newQuestion.text" class="input-field" placeholder="Question Text" required>
+                    <div class="flex justify-between items-end">
+                        <label class="text-xs text-gray-500">Question Text (Markdown)</label>
+                        <div class="flex gap-2">
+                            <button @click="editPreviewMode='edit'" :class="['text-xs text-gray-500', editPreviewMode==='edit'?'text-white':'']">Edit</button>
+                            <button @click="editPreviewMode='preview'" :class="['text-xs text-gray-500', editPreviewMode==='preview'?'text-white':'']">Preview</button>
+                        </div>
+                    </div>
+                    
+                    <textarea v-if="editPreviewMode==='edit'" v-model="newQuestion.text" class="input-field h-24 resize-none font-mono text-sm" placeholder="**Question:** ..."></textarea>
+                    <div v-else class="input-field h-24 overflow-y-auto prose prose-invert prose-sm" v-html="renderMd(newQuestion.text)"></div>
+
                     <div v-for="(opt, idx) in newQuestion.options" :key="idx" class="flex gap-2">
                         <input v-model="newQuestion.options[idx]" class="input-field" :placeholder="'Option ' + (idx + 1)">
                         <input type="radio" :value="idx" v-model="newQuestion.correctIndex" class="accent-orange-500 w-6 h-6 self-center">
                     </div>
+                    
+                    <div>
+                         <label class="text-xs text-gray-500 block mb-1">Explanation (Markdown)</label>
+                         <textarea v-model="newQuestion.explanation" class="input-field h-20 resize-none font-mono text-xs" placeholder="Explanation for the answer..."></textarea>
+                    </div>
+
                     <button @click="addQuestion" class="w-full py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold transition">Add Question</button>
                 </div>
             </div>
@@ -48,12 +68,17 @@
             <div class="space-y-4">
                 <div v-for="(q, idx) in questions" :key="idx" class="glass rounded-xl p-6 relative group border border-gray-800 hover:border-orange-500/30 transition">
                     <button @click="deleteQuestion(idx)" class="absolute top-4 right-4 text-gray-600 hover:text-red-500 transition"><i class="fa-solid fa-trash"></i></button>
-                    <h3 class="font-bold text-lg mb-2"><span class="text-orange-500 mr-2">Q{{ idx + 1 }}.</span> {{ q.text }}</h3>
+                    
+                    <div class="prose prose-invert prose-sm mb-4" v-html="renderMd(q.text)"></div>
+
                     <ul class="space-y-1 ml-6 text-gray-400 text-sm">
                         <li v-for="(opt, oi) in q.options" :key="oi" :class="{'text-green-400 font-bold': oi === q.correctIndex}">
                             {{ String.fromCharCode(65 + oi) }}. {{ opt }}
                         </li>
                     </ul>
+                    <div v-if="q.explanation" class="mt-4 p-3 bg-gray-900 rounded text-xs text-gray-400">
+                        <span class="font-bold text-gray-500 uppercase">Explanation:</span> <span v-html="renderMd(q.explanation)"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -66,7 +91,11 @@
             
             <div v-else-if="!results">
                 <div v-for="(q, idx) in questions" :key="idx" class="glass rounded-xl p-6 mb-6">
-                    <h3 class="font-bold text-lg mb-4 text-white"><span class="text-orange-500 mr-2">{{ idx + 1 }}.</span> {{ q.text }}</h3>
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-orange-500 font-bold">{{ idx + 1 }}.</span>
+                        <div class="prose prose-invert prose-lg leading-tight" v-html="renderMd(q.text)"></div>
+                    </div>
+                    
                     <div class="space-y-2">
                         <label v-for="(opt, oi) in q.options" :key="oi" class="flex items-center gap-3 p-3 rounded-lg border border-gray-800 hover:bg-gray-800 cursor-pointer transition">
                             <input type="radio" :name="'q'+idx" :value="oi" v-model="userAnswers[idx]" class="accent-orange-500 w-4 h-4">
@@ -78,17 +107,41 @@
             </div>
 
             <!-- Results -->
-            <div v-else class="glass rounded-xl p-8 text-center">
-                <div class="text-6xl font-bold mb-4" :class="score >= questions.length / 2 ? 'text-green-500' : 'text-red-500'">
-                    {{ score }} / {{ questions.length }}
+            <div v-else class="space-y-8">
+                <div class="glass rounded-xl p-8 text-center">
+                    <div class="text-6xl font-bold mb-4" :class="score >= questions.length / 2 ? 'text-green-500' : 'text-red-500'">
+                        {{ score }} / {{ questions.length }}
+                    </div>
+                    <p class="text-gray-400 mb-8">You answered {{ score }} questions correctly.</p>
+                    <button @click="resetQuiz" class="px-6 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700">Try Again</button>
                 </div>
-                <p class="text-gray-400 mb-8">You answered {{ score }} questions correctly.</p>
-                <button @click="resetQuiz" class="px-6 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700">Try Again</button>
+
+                <!-- Detailed Solutions -->
+                <div class="glass rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6">Solutions</h3>
+                    <div v-for="(q, idx) in questions" :key="idx" class="mb-8 border-b border-gray-800 pb-6 last:border-0 last:pb-0">
+                         <div class="flex gap-2 mb-2 text-sm text-gray-300">
+                             <span class="font-bold">Q{{idx+1}}.</span>
+                             <div class="prose prose-invert prose-sm" v-html="renderMd(q.text)"></div>
+                         </div>
+                         <div class="grid grid-cols-2 gap-4 text-xs">
+                             <div :class="{'text-green-400 font-bold': userAnswers[idx] === q.correctIndex, 'text-red-400 font-bold': userAnswers[idx] !== q.correctIndex}">
+                                 Your Answer: {{ q.options[userAnswers[idx]] || 'Skipped' }}
+                             </div>
+                             <div class="text-green-500 font-bold">
+                                 Correct Answer: {{ q.options[q.correctIndex] }}
+                             </div>
+                         </div>
+                         <div v-if="q.explanation" class="mt-3 bg-[#111] p-3 rounded text-xs text-gray-400">
+                             <span class="text-orange-500 font-bold">Explanation:</span> <span v-html="renderMd(q.explanation)"></span>
+                         </div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Notification -->
-        <div v-if="notification" class="fixed top-24 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-bounce-in">
+        <div v-if="notification" class="fixed top-24 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-fade-in">
             <span class="text-orange-400">✓</span> {{ notification }}
         </div>
     </div>
@@ -100,10 +153,11 @@
                 return {
                     mode: 'edit',
                     questions: [],
-                    newQuestion: { text: '', options: ['', '', '', ''], correctIndex: 0 },
+                    newQuestion: { text: '', options: ['', '', '', ''], correctIndex: 0, explanation: '' },
                     userAnswers: {},
                     results: false,
                     score: 0,
+                    editPreviewMode: 'edit',
                     notification: null
                 }
             },
@@ -113,12 +167,12 @@
                     try {
                         const res = await fetch('./questions.json');
                         if (res.ok) this.questions = await res.json();
-                    } catch (e) { console.error(e); }
+                    } catch (e) { this.questions = []; }
                 },
                 addQuestion() {
                     if (this.newQuestion.text && this.newQuestion.options.every(o => o)) {
                         this.questions.push(JSON.parse(JSON.stringify(this.newQuestion)));
-                        this.newQuestion = { text: '', options: ['', '', '', ''], correctIndex: 0 };
+                        this.newQuestion = { text: '', options: ['', '', '', ''], correctIndex: 0, explanation: '' };
                         this.showNotification('Question added!');
                     }
                 },
@@ -138,6 +192,7 @@
                     this.results = false;
                     this.score = 0;
                 },
+                renderMd(t) { return t ? marked.parse(t) : ''; },
                 async saveFile() {
                     try {
                         if (window.showSaveFilePicker) {

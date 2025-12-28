@@ -7,11 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
         .glass { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.3s; }
         .input-field:focus { border-color: #f43f5e; box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
 <body class="min-h-screen p-6 relative overflow-x-hidden">
@@ -31,7 +35,7 @@
         </header>
 
         <!-- Notification -->
-        <div v-if="notification" class="fixed top-6 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-bounce-in">
+        <div v-if="notification" class="fixed top-6 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-fade-in">
             <span class="text-emerald-400">✓</span> {{ notification }}
         </div>
 
@@ -39,8 +43,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div v-for="post in posts" :key="post.id" class="glass rounded-xl p-6 hover:border-rose-500/50 transition duration-300 group relative flex flex-col">
                 <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                    <button @click="editPost(post)" class="p-2 rounded bg-gray-800 hover:text-indigo-400 transition"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg></button>
-                    <button @click="deletePost(post.id)" class="p-2 rounded bg-gray-800 hover:text-red-400 transition"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    <button @click="editPost(post)" class="p-2 rounded bg-gray-800 hover:text-indigo-400 transition" title="Edit">✏️</button>
+                    <button @click="deletePost(post.id)" class="p-2 rounded bg-gray-800 hover:text-red-400 transition" title="Delete">🗑️</button>
                 </div>
                 <div class="text-xs text-rose-400 font-bold mb-2">{{ post.date }} • {{ post.author }}</div>
                 <h3 class="text-xl font-bold mb-2 line-clamp-2">{{ post.title }}</h3>
@@ -53,18 +57,18 @@
 
         <!-- Modal -->
         <div v-if="editingPost" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div class="bg-[#111] border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl relative">
+            <div class="bg-[#111] border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl relative flex flex-col">
                 <button @click="editingPost = null" class="absolute top-6 right-6 text-gray-500 hover:text-white">✕</button>
                 <h2 class="text-2xl font-bold mb-6 text-rose-500">{{ isNew ? 'New Post' : 'Edit Post' }}</h2>
 
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 gap-6 mb-6">
                     <div class="col-span-2">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Title</label>
                         <input v-model="editingPost.title" class="input-field text-lg font-bold" type="text">
                     </div>
                      <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Date</label>
-                        <input v-model="editingPost.date" class="input-field" type="text" placeholder="Sep 15, 2025">
+                        <input v-model="editingPost.date" class="input-field" type="date">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Author</label>
@@ -73,12 +77,19 @@
                     
                     <div class="col-span-2">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Excerpt</label>
-                        <textarea v-model="editingPost.excerpt" class="input-field h-20"></textarea>
+                        <textarea v-model="editingPost.excerpt" class="input-field h-20 resize-none"></textarea>
                     </div>
                     
-                    <div class="col-span-2">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Content (HTML)</label>
-                        <textarea v-model="editingPost.content" class="input-field h-64 font-mono text-sm leading-relaxed"></textarea>
+                    <div class="col-span-2 flex flex-col h-96">
+                        <div class="flex justify-between items-end mb-1">
+                             <label class="block text-xs font-medium text-gray-500">Content (Markdown)</label>
+                             <div class="flex gap-2">
+                                 <button @click="viewMode='edit'" :class="['text-xs px-2 py-1', viewMode==='edit'?'text-white':'text-gray-500']">Write</button>
+                                 <button @click="viewMode='preview'" :class="['text-xs px-2 py-1', viewMode==='preview'?'text-white':'text-gray-500']">Preview</button>
+                             </div>
+                        </div>
+                        <textarea v-if="viewMode==='edit'" v-model="editingPost.content" class="input-field h-full font-mono text-sm leading-relaxed resize-none"></textarea>
+                        <div v-else class="input-field h-full overflow-y-auto prose prose-invert prose-sm" v-html="renderMd(editingPost.content)"></div>
                     </div>
 
                     <div>
@@ -91,7 +102,7 @@
                     </div>
                 </div>
 
-                <div class="mt-8 flex justify-end gap-4">
+                <div class="mt-auto flex justify-end gap-4 pt-4 border-t border-[#222]">
                     <button @click="editingPost = null" class="px-6 py-2 rounded-lg border border-gray-700 hover:bg-gray-800 transition">Cancel</button>
                     <button @click="savePost" class="px-6 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium">Save</button>
                 </div>
@@ -108,6 +119,7 @@
                     posts: [],
                     editingPost: null,
                     isNew: false,
+                    viewMode: 'edit',
                     notification: null
                 }
             },
@@ -117,15 +129,18 @@
                     try {
                         const res = await fetch('./posts.json');
                         if (res.ok) this.posts = await res.json();
+                        if(!Array.isArray(this.posts)) this.posts = [];
                     } catch (e) { console.error(e); }
                 },
                 openNewModal() {
                     this.isNew = true;
-                    this.editingPost = { id: Date.now().toString(), title: '', excerpt: '', content: '', author: 'Admin', date: '', tags: [], readTime: '5 min read' };
+                    this.editingPost = { id: Date.now().toString(), title: '', excerpt: '', content: '', author: 'Student', date: new Date().toISOString().split('T')[0], tags: [], readTime: '5 min read' };
+                    this.viewMode = 'edit';
                 },
                 editPost(post) {
                     this.isNew = false;
                     this.editingPost = JSON.parse(JSON.stringify(post));
+                    this.viewMode = 'edit';
                 },
                 savePost() {
                     if (this.isNew) this.posts.push(this.editingPost);
@@ -139,18 +154,21 @@
                 deletePost(id) {
                     if(confirm("Delete this post?")) this.posts = this.posts.filter(p => p.id !== id);
                 },
+                renderMd(t) { return t ? marked.parse(t) : ''; },
                 async saveFile() {
                      try {
-                        const handle = await window.showSaveFilePicker({ suggestedName: 'posts.json' });
-                        const writable = await handle.createWritable();
-                        await writable.write(JSON.stringify(this.posts, null, 2));
-                        await writable.close();
-                        this.showNotification('Saved to posts.json');
-                    } catch (err) {
-                        const blob = new Blob([JSON.stringify(this.posts, null, 2)], {type: 'application/json'});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a'); a.href = url; a.download = 'posts.json'; a.click();
-                    }
+                        if(window.showSaveFilePicker) {
+                            const handle = await window.showSaveFilePicker({ suggestedName: 'posts.json' });
+                            const writable = await handle.createWritable();
+                            await writable.write(JSON.stringify(this.posts, null, 2));
+                            await writable.close();
+                            this.showNotification('Saved to posts.json');
+                        } else {
+                            const blob = new Blob([JSON.stringify(this.posts, null, 2)], {type: 'application/json'});
+                            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'posts.json'; a.click();
+                            this.showNotification('Downloaded posts.json');
+                        }
+                    } catch (err) { console.error(err); }
                 },
                 showNotification(msg) {
                     this.notification = msg;

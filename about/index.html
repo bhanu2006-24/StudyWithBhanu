@@ -3,188 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student | About Manager</title>
+    <title>Profile Manager | Student Community</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Markdown Support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #050505; color: #e5e5e5; }
-        .glass { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.3s; }
-        .input-field:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #10b981; }
+        .glass { background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-field { background: #111; border: 1px solid #222; color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; width: 100%; outline: none; transition: all 0.3s; }
+        .input-field:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        .prose h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; color: white; }
+        .prose h2 { font-size: 1.3em; font-weight: bold; margin-bottom: 0.5em; color: #e5e5e5; }
+        .prose p { margin-bottom: 1em; color: #d4d4d4; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose a { color: #6366f1; text-decoration: underline; }
     </style>
 </head>
-<body class="min-h-screen p-6 relative overflow-x-hidden">
+<body class="min-h-screen relative overflow-x-hidden selection:bg-indigo-500/30">
 
-    <div id="app" class="max-w-4xl mx-auto pb-20">
-        <header class="flex justify-between items-center mb-8 sticky top-0 z-50 glass p-4 rounded-xl -mx-4 bg-[#0a0a0a]/90">
-            <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">About Manager</h1>
-                <p class="text-gray-500 text-xs">Edit & Preview Data</p>
-            </div>
-            <div class="flex gap-3">
-                <button @click="loadFile" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-sm">Reload</button>
-                <button @click="saveFile" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium shadow-lg shadow-emerald-500/20">Save JSON</button>
-            </div>
-        </header>
-
-         <!-- Notification -->
-        <div v-if="notification" class="fixed top-20 right-6 z-50 px-4 py-3 rounded-lg shadow-xl border border-gray-700 bg-gray-900 text-white flex items-center gap-3 animate-bounce-in">
-            <span class="text-emerald-400">✓</span> {{ notification }}
+    <div id="app" class="pb-20">
+        <!-- Cover Image -->
+        <div class="h-64 w-full relative group">
+            <img :src="data.profile.cover" class="w-full h-full object-cover opacity-80">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#050505]"></div>
+            <button @click="editingCover = true" class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-2 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-camera"></i> Edit Cover</button>
         </div>
 
-        <div v-if="data" class="space-y-8">
-            
-            <!-- Brand -->
-            <div class="glass rounded-xl p-6">
-                <h2 class="section-title">Brand Info</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2 md:col-span-1">
-                        <label class="text-xs text-gray-500 block mb-1">Name</label>
-                        <input v-model="data.brand.name" class="input-field">
+        <div class="max-w-5xl mx-auto px-6 -mt-32 relative z-10">
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <!-- Sidebar / Basic Info -->
+                <div class="w-full md:w-1/3 flex flex-col gap-6">
+                    <div class="glass p-6 rounded-2xl text-center relative group">
+                        <div class="relative w-32 h-32 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-indigo-500 to-purple-500">
+                           <img :src="data.profile.avatar" class="w-full h-full rounded-full object-cover border-4 border-[#050505]">
+                           <button @click="editingAvatar = true" class="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-full shadow-lg"><i class="fa-solid fa-pencil text-xs"></i></button>
+                        </div>
+                        
+                        <div v-if="!editingBasic">
+                            <h1 class="text-2xl font-bold text-white mb-1">{{ data.profile.name }}</h1>
+                            <p class="text-indigo-400 font-medium mb-4">{{ data.profile.title }}</p>
+                            <button @click="editingBasic = true" class="text-xs text-gray-500 hover:text-white underline">Edit Basic Info</button>
+                        </div>
+                        <div v-else class="space-y-3 animate-fade-in">
+                            <input v-model="data.profile.name" class="input-field text-center font-bold" placeholder="Name">
+                            <input v-model="data.profile.title" class="input-field text-center text-sm" placeholder="Title/Role">
+                            <button @click="editingBasic = false" class="px-4 py-1 rounded bg-indigo-600/20 text-indigo-400 text-xs font-bold hover:bg-indigo-600 hover:text-white transition">Done</button>
+                        </div>
+
+                        <!-- Socials -->
+                        <div class="flex justify-center gap-3 mt-6 flex-wrap">
+                            <a v-for="(soc, idx) in data.socials" :key="idx" :href="soc.url" target="_blank" class="w-8 h-8 rounded-lg bg-[#222] hover:bg-indigo-600 text-gray-400 hover:text-white flex items-center justify-center transition" :title="soc.platform">
+                                <i :class="soc.icon"></i>
+                            </a>
+                            <button @click="editingSocials = true" class="w-8 h-8 rounded-lg bg-[#222] hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition"><i class="fa-solid fa-plus"></i></button>
+                        </div>
                     </div>
-                    <div class="col-span-2 md:col-span-1">
-                         <label class="text-xs text-gray-500 block mb-1">Sub Brand</label>
-                        <input v-model="data.brand.subBrand" class="input-field">
-                    </div>
-                     <div class="col-span-2">
-                        <label class="text-xs text-gray-500 block mb-1">Tagline</label>
-                        <input v-model="data.brand.tagline" class="input-field">
-                    </div>
-                     <div class="col-span-2">
-                        <label class="text-xs text-gray-500 block mb-1">Hero Image URL</label>
-                        <input v-model="data.brand.images.hero" class="input-field">
-                    </div>
-                     <div class="col-span-2">
-                         <label class="text-xs text-gray-500 block mb-1">Mission</label>
-                        <textarea v-model="data.brand.mission" class="input-field h-24"></textarea>
+
+                    <!-- Details Box (Education/Skills) -->
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-200">Skills & Tech</h3>
+                            <button @click="addItem('skills')" class="text-xs text-indigo-400 hover:text-indigo-300">+ Add</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                             <div v-for="(skill, idx) in data.details.skills" :key="idx" class="px-3 py-1 bg-[#1a1a1a] border border-[#333] rounded-full text-xs text-gray-300 flex items-center gap-2 group">
+                                 {{ skill }}
+                                 <button @click="data.details.skills.splice(idx, 1)" class="text-gray-600 hover:text-red-500 hidden group-hover:block"><i class="fa-solid fa-times"></i></button>
+                             </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Founder -->
-             <div class="glass rounded-xl p-6">
-                <h2 class="section-title">Founder</h2>
-                <div class="grid grid-cols-2 gap-4">
-                     <div class="col-span-2 md:col-span-1">
-                        <label class="text-xs text-gray-500 block mb-1">Name</label>
-                        <input v-model="data.founder.name" class="input-field">
+                <!-- Main Content (Bio) -->
+                <div class="w-full md:w-2/3 space-y-6">
+                    <!-- Bio Section -->
+                    <div class="glass p-8 rounded-2xl relative group">
+                        <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+                            <h2 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">About Me</h2>
+                            <div class="flex gap-2">
+                                <button @click="data.profile.bioFormat = 'markdown'" :class="['text-xs px-3 py-1 rounded transition', data.profile.bioFormat === 'markdown' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-white']">Markdown</button>
+                                <button @click="data.profile.bioFormat = 'html'" :class="['text-xs px-3 py-1 rounded transition', data.profile.bioFormat === 'html' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-white']">HTML</button>
+                                <button @click="viewModel = !viewModel" class="text-xs px-3 py-1 rounded bg-[#222] text-gray-300 hover:bg-[#333] ml-2"><i :class="['fa-solid', viewModel ? 'fa-pen' : 'fa-eye']"></i></button>
+                            </div>
+                        </div>
+
+                        <div v-if="!viewModel">
+                            <textarea v-model="data.profile.bio" class="w-full h-64 bg-[#0a0a0a] border border-[#222] rounded-xl p-4 text-sm font-mono text-gray-300 focus:border-indigo-500/50 outline-none leading-relaxed resize-y" placeholder="Write your bio here..."></textarea>
+                            <p class="text-xs text-gray-600 mt-2 flex justify-between">
+                                <span>Supports {{ data.profile.bioFormat === 'markdown' ? 'Markdown' : 'HTML' }}</span>
+                                <span>{{ data.profile.bio.length }} chars</span>
+                            </p>
+                        </div>
+                        <div v-else class="prose prose-invert max-w-none min-h-[16rem]" v-html="renderContent(data.profile.bio, data.profile.bioFormat)"></div>
                     </div>
-                     <div class="col-span-2 md:col-span-1">
-                        <label class="text-xs text-gray-500 block mb-1">Title</label>
-                        <input v-model="data.founder.title" class="input-field">
-                    </div>
-                    <div class="col-span-2">
-                        <label class="text-xs text-gray-500 block mb-1">Image URL</label>
-                        <input v-model="data.founder.image" class="input-field">
-                    </div>
-                    <div class="col-span-2">
-                         <label class="text-xs text-gray-500 block mb-1">Bio</label>
-                        <textarea v-model="data.founder.bio" class="input-field h-24"></textarea>
-                    </div>
+
+                    <!-- Projects Section (Example of extensible list) -->
+                     <div class="glass p-8 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                             <h2 class="text-xl font-bold text-white">Featured Projects</h2>
+                             <button @click="addProject" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20">+ Add Project</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div v-for="(project, idx) in data.details.projects" :key="idx" class="bg-[#111] border border-[#222] p-4 rounded-xl relative group hover:border-indigo-500/30 transition">
+                                <button @click="data.details.projects.splice(idx, 1)" class="absolute top-4 right-4 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="md:col-span-1 h-24 bg-black rounded-lg overflow-hidden border border-[#333]">
+                                        <img :src="project.image || 'https://via.placeholder.com/150'" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="md:col-span-3 space-y-2">
+                                        <input v-model="project.title" class="bg-transparent font-bold text-white w-full outline-none placeholder-gray-600" placeholder="Project Title">
+                                        <textarea v-model="project.desc" class="bg-transparent text-sm text-gray-400 w-full outline-none resize-none h-12 placeholder-gray-700" placeholder="Short description..."></textarea>
+                                        <div class="flex gap-2">
+                                            <input v-model="project.link" class="bg-[#1a1a1a] text-xs text-indigo-400 rounded px-2 py-1 w-full outline-none" placeholder="Project URL">
+                                            <input v-model="project.image" class="bg-[#1a1a1a] text-xs text-gray-500 rounded px-2 py-1 w-full outline-none" placeholder="Image URL">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Developer -->
-             <div class="glass rounded-xl p-6">
-                <h2 class="section-title">Developer</h2>
-                <div class="grid grid-cols-2 gap-4">
-                     <div class="col-span-2 md:col-span-1">
-                        <label class="text-xs text-gray-500 block mb-1">Name</label>
-                        <input v-model="data.developer.name" class="input-field">
-                    </div>
-                     <div class="col-span-2 md:col-span-1">
-                        <label class="text-xs text-gray-500 block mb-1">Role</label>
-                        <input v-model="data.developer.role" class="input-field">
-                    </div>
-                    <div class="col-span-2">
-                         <label class="text-xs text-gray-500 block mb-1">Headline</label>
-                        <input v-model="data.developer.headline" class="input-field">
-                    </div>
+        <!-- Floating Actions -->
+        <div class="fixed bottom-6 right-6 flex gap-3 z-50">
+            <button @click="loadFile" class="px-5 py-3 rounded-full bg-[#222] hover:bg-[#333] text-gray-300 shadow-lg border border-[#333] transition"><i class="fa-solid fa-rotate"></i></button>
+            <button @click="saveFile" class="px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/20 hover:scale-105 transition flex items-center gap-2"><i class="fa-solid fa-save"></i> Save Profile</button>
+        </div>
+
+        <!-- Modals -->
+        <!-- Image Edit Modal -->
+        <div v-if="editingAvatar || editingCover" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div class="bg-[#111] p-6 rounded-xl w-full max-w-md border border-[#333]">
+                <h3 class="text-white font-bold mb-4">Update Image URL</h3>
+                <input v-if="editingAvatar" v-model="data.profile.avatar" class="input-field mb-4" placeholder="Avatar URL">
+                <input v-if="editingCover" v-model="data.profile.cover" class="input-field mb-4" placeholder="Cover URL">
+                <div class="flex justify-end gap-2">
+                    <button @click="editingAvatar = false; editingCover = false" class="px-4 py-2 rounded text-gray-400 hover:text-white">Close</button>
                 </div>
             </div>
+        </div>
 
-            <!-- List Preview (Stats) -->
-             <div class="glass rounded-xl p-6">
-                <h2 class="section-title">Stats</h2>
-                 <div v-for="(stat, idx) in data.stats" :key="idx" class="flex gap-4 mb-2">
-                     <input v-model="stat.label" class="input-field w-1/2" placeholder="Label">
-                     <input v-model="stat.value" class="input-field w-1/2" placeholder="Value">
+        <!-- Social Editor -->
+        <div v-if="editingSocials" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div class="bg-[#111] p-6 rounded-xl w-full max-w-lg border border-[#333]">
+                 <h3 class="text-white font-bold mb-4">Manage Social Links</h3>
+                 <div class="space-y-3 max-h-96 overflow-y-auto mb-4">
+                     <div v-for="(soc, idx) in data.socials" :key="idx" class="flex gap-2 items-center">
+                         <input v-model="soc.platform" class="input-field w-1/3 text-xs" placeholder="Platform">
+                         <input v-model="soc.url" class="input-field flex-1 text-xs" placeholder="URL">
+                         <input v-model="soc.icon" class="input-field w-1/4 text-xs font-mono" placeholder="fa-brands fa-...">
+                         <button @click="data.socials.splice(idx, 1)" class="text-red-500 hover:bg-[#222] p-2 rounded"><i class="fa-solid fa-trash"></i></button>
+                     </div>
                  </div>
+                 <button @click="data.socials.push({platform:'', url:'', icon:'fa-solid fa-link'})" class="w-full py-2 border border-dashed border-[#333] rounded text-gray-500 hover:text-white text-xs uppercase font-bold tracking-wide">+ Add Link</button>
+                 <button @click="editingSocials = false" class="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-white font-bold">Done</button>
             </div>
-
-            <!-- Testimonials -->
-             <div class="glass rounded-xl p-6">
-                <h2 class="section-title">Testimonials</h2>
-                <div class="space-y-4">
-                    <div v-for="(t, idx) in data.testimonials" :key="idx" class="bg-gray-900/50 p-4 rounded relative group border border-gray-800">
-                         <button @click="data.testimonials.splice(idx, 1)" class="absolute top-2 right-2 text-red-500 text-xs hover:underline">Remove</button>
-                         <div class="mb-2 grid grid-cols-2 gap-2">
-                             <input v-model="t.author" class="bg-transparent border-b border-gray-700 w-full outline-none text-sm p-1" placeholder="Author">
-                             <input v-model="t.role" class="bg-transparent border-b border-gray-700 text-xs text-gray-500 w-full outline-none p-1" placeholder="Role">
-                         </div>
-                         <textarea v-model="t.text" class="bg-transparent w-full text-sm text-gray-300 outline-none resize-none h-16" placeholder="Testimonial text..."></textarea>
-                    </div>
-                     <button @click="data.testimonials.push({text:'', author:'', role:'', color: 'bg-blue-500'})" class="w-full py-2 border border-dashed border-gray-700 rounded text-xs text-gray-500 hover:border-emerald-500 hover:text-emerald-400 transition">+ Add Testimonial</button>
-                </div>
-            </div>
-
-            <!-- Preview Section -->
-            <div class="glass rounded-xl p-8 mt-10 border-emerald-900/50 bg-[#080808]">
-                <h2 class="text-center font-bold text-emerald-500 uppercase tracking-widest mb-8">Live Preview</h2>
-                
-                <div class="text-center">
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent mb-2">{{ data.brand.subBrand }}</h1>
-                    <p class="text-white text-xl">{{ data.brand.tagline }}</p>
-                    <p class="text-gray-500 text-sm mt-4 max-w-2xl mx-auto">{{ data.brand.mission }}</p>
-                    
-                    <div class="mt-8 flex justify-center gap-8">
-                         <div v-for="stat in data.stats" class="text-center">
-                             <div class="text-2xl font-bold text-white">{{ stat.value }}</div>
-                             <div class="text-xs text-gray-500 uppercase">{{ stat.label }}</div>
-                         </div>
-                    </div>
-
-                    <div class="mt-12 flex flex-col items-center">
-                        <img :src="data.founder.image" class="w-20 h-20 rounded-full border-2 border-emerald-500 mb-4 object-cover">
-                        <h3 class="font-bold text-white">{{ data.founder.name }}</h3>
-                        <p class="text-xs text-emerald-400">{{ data.founder.title }}</p>
-                    </div>
-                </div>
-            </div>
-
         </div>
+
+        <!-- Notification -->
+        <div v-if="notification" class="fixed top-6 left-1/2 -translate-x-1/2 z-[70] px-6 py-3 rounded-full shadow-2xl border border-indigo-500/50 bg-[#111] text-white flex items-center gap-3 animate-fade-in-up">
+            <span class="text-indigo-400 text-lg"><i class="fa-solid fa-circle-check"></i></span> {{ notification }}
+        </div>
+
     </div>
 
     <script>
         const { createApp } = Vue;
         createApp({
-            data() { return { data: null, notification: null } },
+            data() {
+                return {
+                    data: { profile: { name:'', title:'', avatar:'', cover:'', bio:'', bioFormat:'markdown'}, socials: [], details: { skills:[], projects: [] } },
+                    editingAvatar: false,
+                    editingCover: false,
+                    editingBasic: false,
+                    editingSocials: false,
+                    viewModel: true,
+                    notification: null
+                }
+            },
             mounted() { this.loadFile(); },
             methods: {
-                async loadFile() { try { const res = await fetch('./data.json'); if(res.ok) this.data = await res.json(); } catch(e){} },
-                async saveFile() {
-                     try { 
-                        if (window.showSaveFilePicker) {
-                            const h = await window.showSaveFilePicker({ suggestedName: 'data.json' }); 
-                            const w = await h.createWritable(); 
-                            await w.write(JSON.stringify(this.data, null, 2)); 
-                            await w.close(); 
-                            this.showNotification('Saved to data.json');
-                        } else {
-                            throw new Error("FS API Not Supported");
-                        }
-                     }
-                    catch(e) { 
-                        const blob = new Blob([JSON.stringify(this.data,null,2)],{type:'application/json'}); 
-                        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
-                        a.download='data.json'; a.click(); 
-                        this.showNotification('Downloaded JSON');
+                async loadFile() {
+                    try {
+                        const res = await fetch('./data.json');
+                        if (res.ok) this.data = await res.json();
+                        // Defaults
+                        if(!this.data.details) this.data.details = { skills: [], projects: [] };
+                    } catch (e) { console.error(e); }
+                },
+                renderContent(content, format) {
+                    if (!content) return '';
+                    if (format === 'markdown') return marked.parse(content);
+                    return content;
+                },
+                addItem(type) {
+                    if (type === 'skills') {
+                        const s = prompt("Enter skill name:");
+                        if (s) this.data.details.skills.push(s);
                     }
                 },
-                showNotification(msg) { this.notification = msg; setTimeout(()=>this.notification=null, 3000); }
+                addProject() {
+                    this.data.details.projects.push({ title: 'New Project', desc: '', link: '', image: '' });
+                },
+                async saveFile() {
+                     try {
+                        if (window.showSaveFilePicker) {
+                            const handle = await window.showSaveFilePicker({ suggestedName: 'data.json' });
+                            const writable = await handle.createWritable();
+                            await writable.write(JSON.stringify(this.data, null, 2));
+                            await writable.close();
+                            this.showNotification('Profile saved successfully!');
+                        } else {
+                             const blob = new Blob([JSON.stringify(this.data, null, 2)], {type: 'application/json'});
+                             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'data.json'; a.click();
+                             this.showNotification('Downloaded profile data');
+                        }
+                    } catch (err) { console.error(err); }
+                },
+                showNotification(msg) {
+                    this.notification = msg;
+                    setTimeout(() => this.notification = null, 3000);
+                }
             }
         }).mount('#app');
     </script>
