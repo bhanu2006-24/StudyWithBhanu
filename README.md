@@ -19,6 +19,16 @@ This repository contains data and tools for the Student Community project, focus
 
 To use the tools locally, simply open the `index.html` files in the respective directories (e.g., `blog/index.html`, `task/index.html`) in your browser.
 
+## Directory Structure
+
+- **task/**: Kanban Board Task Manager.
+- **quiz/**: Quiz and practice questions.
+- **blog/**: Blog posts and news.
+- **calendar/**: Academic calendar.
+- **courses/**: Course curriculum manager.
+- **pp/**: Programming Problem tracker.
+- **about/**: Profile and Portfolio manager.
+
 ## Contributing
 
 - **Data**: JSON files are used for data storage.

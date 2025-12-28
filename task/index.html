@@ -369,8 +369,6 @@
                 },
                 async saveFile(silent=false) {
                     try {
-                        // In a real environment with File System Access, this works great.
-                        // Fallback included.
                         if (window.showSaveFilePicker) {
                             const handle = await window.showSaveFilePicker({ suggestedName: 'tasks.json' });
                             const writable = await handle.createWritable();
@@ -378,9 +376,9 @@
                             await writable.close();
                             if(!silent) this.showNotification('Saved to tasks.json');
                         } else {
-                            const blob = new Blob([JSON.stringify(this.tasks, null, 2)], {type: 'application/json'});
-                            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click();
-                            if(!silent) this.showNotification('Downloaded tasks.json');
+                             const blob = new Blob([JSON.stringify(this.tasks, null, 2)], {type: 'application/json'});
+                             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click();
+                             if(!silent) this.showNotification('Downloaded tasks.json');
                         }
                     } catch (err) { console.error(err); }
                 },
